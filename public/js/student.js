@@ -3,15 +3,25 @@
 // ==========================================================
 
 const studentWaitingOverlay = document.getElementById('studentWaitingOverlay');
+const studentWaitingBaselineRule = document.getElementById('studentWaitingBaselineRule');
+const preSessionProposalForm = document.getElementById('preSessionProposalForm');
+const preProposedClauseInput = document.getElementById('preProposedClauseInput');
+const preProposalJustificationInput = document.getElementById('preProposalJustificationInput');
+
 const studentPeersStatus = document.getElementById('studentPeersStatus');
+const studentSessionStatusPill = document.getElementById('studentSessionStatusPill');
 const studentChatStream = document.getElementById('studentChatStream');
 const studentChatForm = document.getElementById('studentChatForm');
 const studentMessageInput = document.getElementById('studentMessageInput');
+const btnStudentSendMsg = document.getElementById('btnStudentSendMsg');
 const charCountDisplay = document.getElementById('charCountDisplay');
+
+const studentConstitutionTitle = document.getElementById('studentConstitutionTitle');
+const studentConstitutionSubtitle = document.getElementById('studentConstitutionSubtitle');
 const studentCurrentRuleDisplay = document.getElementById('studentCurrentRuleDisplay');
 const studentProposalsContainer = document.getElementById('studentProposalsContainer');
 
-// Modal Elements
+// Active Session Proposal Modal Elements
 const btnOpenProposalModal = document.getElementById('btnOpenProposalModal');
 const btnCloseProposalModal = document.getElementById('btnCloseProposalModal');
 const btnCancelProposal = document.getElementById('btnCancelProposal');
@@ -20,12 +30,18 @@ const proposalForm = document.getElementById('proposalForm');
 const proposedClauseInput = document.getElementById('proposedClauseInput');
 const proposalJustificationInput = document.getElementById('proposalJustificationInput');
 
+// Voting Caution Confirmation Modal (Step 5 in requested workflow)
+const votingCautionModal = document.getElementById('votingCautionModal');
+const cautionProposalText = document.getElementById('cautionProposalText');
+const btnCloseCautionModal = document.getElementById('btnCloseCautionModal');
+const btnCancelCautionVote = document.getElementById('btnCancelCautionVote');
+const btnConfirmCautionVote = document.getElementById('btnConfirmCautionVote');
+
+let pendingApprovalProposalId = null;
+
 function initStudentWorkspace() {
   updateStudentSessionState(AppState.isSessionStarted);
-
-  if (AppState.topic) {
-    studentCurrentRuleDisplay.textContent = `"${AppState.topic.currentRule}"`;
-  }
+  syncActiveTopicUI();
 
   // Render initial messages
   if (AppState.messages && AppState.messages.length > 0) {
@@ -45,14 +61,49 @@ function initStudentWorkspace() {
   setupStudentEventListeners();
 }
 
+function syncActiveTopicUI() {
+  const topic = AppState.activeTopic;
+  if (!topic) return;
+
+  if (studentWaitingBaselineRule) {
+    studentWaitingBaselineRule.textContent = `"${topic.originalRule}"`;
+  }
+  if (studentCurrentRuleDisplay) {
+    studentCurrentRuleDisplay.textContent = `"${topic.currentRule}"`;
+  }
+  if (studentConstitutionTitle) {
+    studentConstitutionTitle.textContent = topic.title || 'Classroom Constitution';
+  }
+  if (studentConstitutionSubtitle) {
+    studentConstitutionSubtitle.textContent = topic.shortTitle || 'Classroom Deliberation';
+  }
+}
+
 function updateStudentSessionState(isStarted) {
   if (isStarted) {
     studentWaitingOverlay.classList.add('hidden');
     studentMessageInput.removeAttribute('disabled');
+    if (btnStudentSendMsg) btnStudentSendMsg.removeAttribute('disabled');
+    if (studentSessionStatusPill) {
+      studentSessionStatusPill.textContent = 'Live Session';
+      studentSessionStatusPill.className = 'status-pill-subtle';
+    }
     studentMessageInput.focus();
   } else {
-    studentWaitingOverlay.classList.remove('hidden');
-    studentMessageInput.setAttribute('disabled', 'true');
+    // If session was active and now paused
+    if (AppState.sessionStartTime) {
+      studentWaitingOverlay.classList.add('hidden');
+      studentMessageInput.setAttribute('disabled', 'true');
+      if (btnStudentSendMsg) btnStudentSendMsg.setAttribute('disabled', 'true');
+      if (studentSessionStatusPill) {
+        studentSessionStatusPill.textContent = 'Session Paused by Teacher';
+        studentSessionStatusPill.className = 'status-pill-subtle badge-status-warning';
+      }
+    } else {
+      studentWaitingOverlay.classList.remove('hidden');
+      studentMessageInput.setAttribute('disabled', 'true');
+      if (btnStudentSendMsg) btnStudentSendMsg.setAttribute('disabled', 'true');
+    }
   }
 }
 
@@ -66,7 +117,28 @@ function updateStudentPeersStatus(metrics) {
 }
 
 function setupStudentEventListeners() {
-  // Chat form submit
+  // Pre-Session Proposal Form Submit (Step 1 in requested workflow)
+  if (preSessionProposalForm) {
+    preSessionProposalForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const proposedText = preProposedClauseInput.value.trim();
+      const justification = preProposalJustificationInput.value.trim();
+
+      if (!proposedText || !justification) {
+        showToast('Please provide both the proposed clause and your justification.', 'warning');
+        return;
+      }
+
+      socket.emit('constitution:propose_amendment', {
+        proposedText,
+        justification
+      });
+
+      preSessionProposalForm.reset();
+    });
+  }
+
+  // Active Chat form submit
   studentChatForm.addEventListener('submit', (e) => {
     e.preventDefault();
     sendStudentMessage();
@@ -98,17 +170,16 @@ function setupStudentEventListeners() {
         studentMessageInput.value = current + ' ' + starter + ' ';
       }
       studentMessageInput.focus();
-      // Move cursor to end
       studentMessageInput.selectionStart = studentMessageInput.selectionEnd = studentMessageInput.value.length;
       studentMessageInput.dispatchEvent(new Event('input'));
     });
   });
 
-  // Modal Open / Close
+  // Proposal Modal Open / Close
   btnOpenProposalModal.addEventListener('click', () => {
-    // Pre-fill a helpful starting amendment template if blank
-    if (!proposedClauseInput.value.trim()) {
-      proposedClauseInput.value = "Rule 4.1: English is mandatory inside the classroom during instructional hours. In the playground, dining mess, and corridors, students are free to speak their home language (such as Telugu) or English, ensuring no peer is excluded.";
+    const topic = AppState.activeTopic;
+    if (!proposedClauseInput.value.trim() && topic?.suggestedAmendment) {
+      proposedClauseInput.value = topic.suggestedAmendment;
     }
     proposalModal.classList.remove('hidden');
     proposedClauseInput.focus();
@@ -121,7 +192,7 @@ function setupStudentEventListeners() {
   btnCloseProposalModal.addEventListener('click', closeModal);
   btnCancelProposal.addEventListener('click', closeModal);
 
-  // Proposal Submission
+  // Proposal Submission during active session
   proposalForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const proposedText = proposedClauseInput.value.trim();
@@ -141,9 +212,36 @@ function setupStudentEventListeners() {
     proposalForm.reset();
     showToast('Your amendment proposal has been shared with the class for voting!', 'success');
   });
+
+  // Caution Voting Modal Event Handlers (Step 5 in requested workflow)
+  const closeCautionModal = () => {
+    votingCautionModal.classList.add('hidden');
+    pendingApprovalProposalId = null;
+  };
+
+  btnCloseCautionModal.addEventListener('click', closeCautionModal);
+  btnCancelCautionVote.addEventListener('click', closeCautionModal);
+
+  btnConfirmCautionVote.addEventListener('click', () => {
+    if (!pendingApprovalProposalId) return;
+
+    socket.emit('constitution:vote', {
+      proposalId: pendingApprovalProposalId,
+      vote: 'accept',
+      reason: ''
+    });
+
+    showToast('Your approval vote has been confirmed and registered!', 'success');
+    closeCautionModal();
+  });
 }
 
 function sendStudentMessage() {
+  if (!AppState.isSessionStarted) {
+    showToast('Discussion is currently paused by the teacher.', 'warning');
+    return;
+  }
+
   const content = studentMessageInput.value.trim();
   if (!content) return;
 
@@ -227,7 +325,7 @@ window.quotePeerReply = function(peerName) {
 };
 
 // -------------------------------------------------------------
-// Shared Artefact: Proposals & Voting
+// Shared Artefact: Proposals & Voting with Caution Gate
 // -------------------------------------------------------------
 function renderStudentProposals(proposals) {
   if (!proposals || proposals.length === 0) {
@@ -246,14 +344,13 @@ function renderStudentProposals(proposals) {
     const accepts = votes.filter(v => v.vote === 'accept').length;
     const totalVotes = votes.length;
 
-    // Check how current user voted
     const myVoteObj = p.votes ? p.votes[AppState.currentUser?.id] : null;
     const myVote = myVoteObj?.vote;
 
     let voteActionHtml = '';
     if (isAccepted) {
       voteActionHtml = `
-        <div class="badge badge-success" style="font-size: 0.8rem; padding: 0.35rem 0.8rem;">
+        <div class="badge-status badge-status-good" style="font-size: 0.8rem; padding: 0.4rem 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
           🎉 Amendment Ratified into Classroom Constitution!
         </div>
       `;
@@ -261,10 +358,10 @@ function renderStudentProposals(proposals) {
       voteActionHtml = `
         <div class="voting-action-bar">
           <div class="voting-buttons">
-            <button class="btn btn-sm btn-vote-accept ${myVote === 'accept' ? 'active-vote' : ''}" onclick="voteOnProposal('${p.id}', 'accept')">
+            <button class="btn btn-sm btn-vote-accept ${myVote === 'accept' ? 'active-vote' : ''}" onclick="initiateVoteApproval('${p.id}')">
               ${myVote === 'accept' ? '✓ You Supported' : '✓ Support Amendment'}
             </button>
-            <button class="btn btn-sm btn-vote-revise ${myVote === 'revise' ? 'active-vote' : ''}" onclick="voteOnProposal('${p.id}', 'revise')">
+            <button class="btn btn-sm btn-vote-revise ${myVote === 'revise' ? 'active-vote' : ''}" onclick="voteRevise('${p.id}')">
               ${myVote === 'revise' ? '⚠ You Requested Revision' : '⚠ Suggest Revision'}
             </button>
           </div>
@@ -279,11 +376,11 @@ function renderStudentProposals(proposals) {
       <div class="proposal-item-card ${isAccepted ? 'proposal-accepted' : ''}">
         <div class="proposal-item-header">
           <span class="proposal-proposer">Proposed by ${escapeHtml(p.studentName)} [Roll: ${escapeHtml(p.rollNo || 'N/A')}]</span>
-          <span class="badge ${isAccepted ? 'badge-success' : 'badge-warning'}">${isAccepted ? 'RATIFIED' : 'ACTIVE DELIBERATION'}</span>
+          <span class="role-pill ${isAccepted ? 'teacher' : 'student'}">${isAccepted ? 'RATIFIED' : 'ACTIVE DELIBERATION'}</span>
         </div>
         <div class="proposal-text-quote">"${escapeHtml(p.proposedText)}"</div>
         <div class="proposal-justification-box">
-          <strong>Decision Rationale:</strong> ${escapeHtml(p.justification)}
+          <strong>Decision Justification:</strong> ${escapeHtml(p.justification)}
         </div>
         ${voteActionHtml}
       </div>
@@ -293,19 +390,42 @@ function renderStudentProposals(proposals) {
   studentProposalsContainer.innerHTML = html;
 }
 
-window.voteOnProposal = function(proposalId, vote) {
+// Caution Trigger while Approving (Step 5 in requested workflow)
+window.initiateVoteApproval = function(proposalId) {
+  if (!AppState.isSessionStarted) {
+    showToast('Voting is disabled while discussion is paused by the teacher.', 'warning');
+    return;
+  }
+
+  const p = AppState.proposals.find(item => item.id === proposalId);
+  if (!p) return;
+
+  pendingApprovalProposalId = proposalId;
+  cautionProposalText.textContent = `"${p.proposedText}"`;
+  votingCautionModal.classList.remove('hidden');
+};
+
+window.voteRevise = function(proposalId) {
+  if (!AppState.isSessionStarted) {
+    showToast('Voting is disabled while discussion is paused by the teacher.', 'warning');
+    return;
+  }
+
   socket.emit('constitution:vote', {
     proposalId,
-    vote,
+    vote: 'revise',
     reason: ''
   });
-
-  showToast(vote === 'accept' ? 'You supported this amendment!' : 'You requested revisions on this amendment.', 'info');
+  showToast('You requested revisions on this amendment.', 'info');
 };
 
 // -------------------------------------------------------------
 // Socket Event Listeners for Student
 // -------------------------------------------------------------
+socket.on('student:pre_session_proposal_submitted', (data) => {
+  showToast(data.message, 'success', 6000);
+});
+
 socket.on('chat:new_message', (msg) => {
   if (AppState.currentUser?.role !== 'student') return;
   AppState.messages.push(msg);
@@ -316,7 +436,7 @@ socket.on('constitution:proposal_created', ({ proposal }) => {
   if (AppState.currentUser?.role !== 'student') return;
   AppState.proposals.push(proposal);
   renderStudentProposals(AppState.proposals);
-  showToast(`📜 ${proposal.studentName} proposed an amendment to Article IV! Review and vote on the right panel.`, 'info');
+  showToast(`📜 ${proposal.studentName} proposed an amendment! Review and cast your vote on the right panel.`, 'info');
 });
 
 socket.on('constitution:vote_updated', ({ proposalId, votes, voterName, vote }) => {
@@ -331,13 +451,14 @@ socket.on('constitution:vote_updated', ({ proposalId, votes, voterName, vote }) 
 
 socket.on('constitution:ratified', ({ currentRule, proposalId }) => {
   if (AppState.currentUser?.role !== 'student') return;
-  AppState.topic.currentRule = currentRule;
+  if (AppState.activeTopic) {
+    AppState.activeTopic.currentRule = currentRule;
+  }
   studentCurrentRuleDisplay.textContent = `"${currentRule}"`;
   
   const p = AppState.proposals.find(item => item.id === proposalId);
   if (p) p.status = 'accepted';
   renderStudentProposals(AppState.proposals);
 
-  showToast('🎉 CONGRATULATIONS! Group consensus reached: Article IV has been officially updated!', 'success', 6000);
+  showToast('🎉 CONGRATULATIONS! Group consensus reached: amendment has been formally ratified into the Classroom Constitution!', 'success', 6000);
 });
-

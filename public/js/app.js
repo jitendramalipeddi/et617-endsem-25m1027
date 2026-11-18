@@ -9,7 +9,9 @@ window.socket = socket;
 const AppState = {
   currentUser: null,       // { id, name, rollNo, role: 'teacher' | 'student' }
   isSessionStarted: false,
-  topic: null,
+  activeTopic: null,
+  curatedTopics: [],
+  preSessionProposals: [],
   metrics: null,
   messages: [],
   proposals: [],
@@ -98,12 +100,21 @@ window.switchView = switchView;
 document.getElementById('teacherLoginForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const nameInput = document.getElementById('teacherName');
+  const passInput = document.getElementById('teacherPasscode');
   const name = nameInput.value.trim() || 'Teacher';
+  const passcode = (passInput.value || '').trim();
+
+  if (passcode !== 'teacher') {
+    showToast('Invalid secret code. Please enter "teacher" to access Teacher Portal.', 'error');
+    passInput.focus();
+    return;
+  }
   
   socket.emit('join', {
     role: 'teacher',
     name: name,
-    rollNo: ''
+    rollNo: '',
+    passcode: passcode
   });
 });
 
@@ -132,10 +143,16 @@ btnLogout.addEventListener('click', () => {
 // -------------------------------------------------------------
 // Socket Event Listeners (Shared)
 // -------------------------------------------------------------
+socket.on('auth:error', (err) => {
+  showToast(err.message, 'error', 5000);
+});
+
 socket.on('init', (data) => {
   AppState.currentUser = data.user;
   AppState.isSessionStarted = data.isStarted;
-  AppState.topic = data.topic;
+  AppState.activeTopic = data.activeTopic;
+  AppState.curatedTopics = data.curatedTopics || [];
+  AppState.preSessionProposals = data.preSessionProposals || [];
   AppState.messages = data.messages || [];
   AppState.proposals = data.proposals || [];
   AppState.metrics = data.metrics;
@@ -148,16 +165,18 @@ socket.on('init', (data) => {
     initStudentWorkspace();
   }
 
-  showToast(`Welcome, ${data.user.name}! Connected to collaborative session.`, 'success');
+  showToast(`Welcome, ${data.user.name}! Connected to Student Sabha.`, 'success');
 });
 
 socket.on('session:started', (data) => {
   AppState.isSessionStarted = true;
   AppState.sessionStartTime = data.startTime;
+  if (data.activeTopic) AppState.activeTopic = data.activeTopic;
+  if (data.proposals) AppState.proposals = data.proposals;
 
   if (AppState.currentUser?.role === 'student') {
     updateStudentSessionState(true);
-    showToast('The discussion has been opened by the teacher! You can now participate.', 'success');
+    showToast(`Deliberation opened on "${data.activeTopic?.shortTitle || 'Constitution'}"!`, 'success');
   } else if (AppState.currentUser?.role === 'teacher') {
     updateTeacherSessionState(true);
   }

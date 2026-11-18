@@ -21,7 +21,6 @@
   <header class="app-header">
     <div class="header-brand">
       <div class="brand-emblem" aria-hidden="true">
-        <!-- Civic Emblem SVG -->
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="22" x2="21" y2="22"></line>
           <line x1="6" y1="18" x2="6" y2="11"></line>
@@ -52,19 +51,19 @@
   <main class="main-container">
     
     <!-- ========================================== -->
-    <!-- 1. LANDING & ROLE SELECTION VIEW           -->
+    <!-- 1. LANDING & ROLE SELECTION VIEW (GENERIC) -->
     <!-- ========================================== -->
     <section id="loginView" class="view-panel active">
       <div class="login-wrapper">
         <div class="login-hero">
           <div class="pill-badge">
             <span class="pill-dot"></span>
-            <span>Collaborative Problem-Solving Task</span>
+            <span>Democratic Classroom Governance</span>
           </div>
-          <h2 class="hero-title">Classroom Constitution: Language of Communication</h2>
+          <h2 class="hero-title">Classroom Constitution Deliberation &amp; Student Sabha</h2>
           <p class="hero-description">
-            Deliberate and co-author <strong>Article IV (Language Policy)</strong>. 
-            Balance English language acquisition in instructional hours with the linguistic freedom, comfort, and social inclusion of multilingual students in informal school spaces.
+            Empowering learners to co-author shared classroom rights and responsibilities. 
+            Propose constitutional amendments, deliberate through structured peer discourse, resolve disagreements through reasoned warrants, and build consensus around a living classroom constitution.
           </p>
         </div>
 
@@ -73,19 +72,23 @@
           <div class="role-card teacher-card">
             <div class="role-card-content">
               <div class="role-icon-badge badge-emerald">
-                <!-- Lucide Graduation Cap Icon -->
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
                   <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
                 </svg>
               </div>
               <h3 class="role-card-title">Teacher Portal</h3>
-              <p class="role-card-desc">Orchestrate the deliberation session, monitor participation balance in real time, and review AI pedagogical scaffolds.</p>
+              <p class="role-card-desc">Review student-submitted amendments, select topics for class deliberation, approve AI scaffolds, and monitor inclusivity in real time.</p>
               
               <form id="teacherLoginForm" class="role-form">
                 <div class="form-group">
                   <label for="teacherName">Teacher Name</label>
                   <input type="text" id="teacherName" class="form-control" placeholder="Enter your name" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                  <label for="teacherPasscode">Secret Passcode</label>
+                  <input type="password" id="teacherPasscode" class="form-control" placeholder="Enter secret code (teacher)" required autocomplete="current-password">
+                  <span class="form-hint">Authorized teacher code: "teacher"</span>
                 </div>
                 <button type="submit" class="btn btn-teacher btn-block">
                   <span>Enter Teacher Dashboard</span>
@@ -99,7 +102,6 @@
           <div class="role-card student-card">
             <div class="role-card-content">
               <div class="role-icon-badge badge-indigo">
-                <!-- Lucide Users Icon -->
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                   <circle cx="9" cy="7" r="4"></circle>
@@ -108,7 +110,7 @@
                 </svg>
               </div>
               <h3 class="role-card-title">Student Portal</h3>
-              <p class="role-card-desc">Join the shared deliberation, articulate your warrants and viewpoints, and co-draft constitutional amendments with peers.</p>
+              <p class="role-card-desc">Propose constitutional amendments before class, deliberate with peers in group debate, and vote to ratify democratic classroom policies.</p>
               
               <form id="studentLoginForm" class="role-form">
                 <div class="form-group">
@@ -120,7 +122,7 @@
                   <input type="text" id="studentRoll" class="form-control" placeholder="Enter roll number or student ID" required>
                 </div>
                 <button type="submit" class="btn btn-student btn-block">
-                  <span>Join Student Discussion</span>
+                  <span>Join Student Sabha</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </button>
               </form>
@@ -128,7 +130,6 @@
           </div>
         </div>
 
-        <!-- Single-Line Clean Footer -->
         <footer class="app-footer">
           <p>© 2026 Student Sabha · Collaborative Learning &amp; Deliberative Governance</p>
         </footer>
@@ -136,7 +137,7 @@
     </section>
 
     <!-- ========================================== -->
-    <!-- 2. TEACHER DASHBOARD VIEW (PRODUCTION)     -->
+    <!-- 2. TEACHER DASHBOARD VIEW                  -->
     <!-- ========================================== -->
     <section id="teacherView" class="view-panel hidden">
       
@@ -145,7 +146,7 @@
         <div class="bar-left">
           <div class="topic-pill">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            <span>Article IV: Language Policy</span>
+            <span id="teacherTopTopicLabel">Article IV: Language Policy</span>
           </div>
           <div class="live-count-pill">
             <span class="live-dot"></span>
@@ -177,8 +178,35 @@
         
         <!-- Left Column (65% width): Primary Workspace with Tabbed Switcher -->
         <div class="workspace-main-column">
+          
+          <!-- Topic Selector Banner (Visible when session is not started, allowing teacher to reverify & choose) -->
+          <div id="teacherTopicSelectionBanner" class="card-frosted p-4 mb-3">
+            <div class="flex-between mb-2">
+              <div>
+                <span class="legal-badge">Teacher-in-the-Loop Orchestration</span>
+                <h3 class="topic-selection-title">Select Deliberation Topic &amp; Review Proposals</h3>
+                <p class="text-subtle" style="font-size: 0.84rem;">Review student-submitted amendments or choose a curated constitutional article to open for deliberation.</p>
+              </div>
+            </div>
+
+            <!-- Student Submitted Proposals Awaiting Deliberation -->
+            <div class="pre-proposals-container mt-3">
+              <span class="sub-label">Student-Submitted Amendment Proposals:</span>
+              <div id="teacherPreSessionProposalsList" class="pre-proposals-grid mt-2">
+                <div class="empty-substate">No student proposals submitted yet. Students can propose amendments in their waiting room.</div>
+              </div>
+            </div>
+
+            <!-- Curated Constitutional Amendment Options -->
+            <div class="curated-topics-container mt-3">
+              <span class="sub-label">Curated Constitutional Amendment Articles:</span>
+              <div id="teacherCuratedTopicsList" class="curated-topics-grid mt-2">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
           <div class="card-frosted workspace-card">
-            
             <!-- Tabbed Segmented Switcher -->
             <div class="tabs-header-bar">
               <div class="segmented-control">
@@ -210,17 +238,17 @@
             <div id="tabConstitution" class="tab-content hidden">
               <div class="constitution-draft-viewer">
                 <div class="legal-box-header">
-                  <span class="legal-badge">Current Ratified Rule</span>
-                  <h4>Article IV: Language of Communication in School</h4>
+                  <span class="legal-badge">Active Deliberation Clause</span>
+                  <h4 id="teacherActiveArticleTitle">Article IV: Language of Communication in School</h4>
                 </div>
                 <div id="teacherCurrentRule" class="legal-rule-quote">
                   "Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."
                 </div>
 
                 <div class="amendments-review-block">
-                  <h5 class="section-title">Submitted Amendment Proposals</h5>
+                  <h5 class="section-title">Active Amendment Deliberation &amp; Votes</h5>
                   <div id="teacherProposalsList" class="proposals-list">
-                    <div class="empty-state">No amendments proposed yet.</div>
+                    <div class="empty-state">No amendments under deliberation. Start discussion from a topic above.</div>
                   </div>
                 </div>
               </div>
@@ -267,7 +295,7 @@
               </div>
             </div>
 
-            <!-- Accordion 2: AI Scaffold Queue (Collapsed by default, with pending count pill) -->
+            <!-- Accordion 2: AI Scaffold Queue (Topic-Scoped) -->
             <div class="accordion-item" id="accAiScaffolds">
               <button type="button" class="accordion-header" onclick="toggleAccordion('accAiScaffolds')">
                 <div class="accordion-title-wrap">
@@ -280,23 +308,22 @@
                 </div>
               </button>
               <div class="accordion-body">
-                <p class="accordion-desc">Review, edit, or override AI-generated inquiries before they reach learners.</p>
+                <p class="accordion-desc">AI inquiries are strictly scoped to the active deliberation topic.</p>
                 <div id="aiPromptsQueue" class="ai-queue-list">
                   <div class="empty-substate">No pending scaffolds. Discussion is flowing productively.</div>
                 </div>
                 
-                <!-- Off-Topic Drift Alerts within AI queue area -->
                 <div id="offTopicSection" class="offtopic-section mt-3 hidden">
                   <div class="offtopic-header">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    <span>Off-Topic Drift Detected</span>
+                    <span>Topic Drift Detected</span>
                   </div>
                   <div id="offTopicFlagsList" class="flags-list"></div>
                 </div>
               </div>
             </div>
 
-            <!-- Accordion 3: Direct Teacher Interventions (Collapsed by default) -->
+            <!-- Accordion 3: Direct Teacher Interventions -->
             <div class="accordion-item" id="accDirectInterventions">
               <button type="button" class="accordion-header" onclick="toggleAccordion('accDirectInterventions')">
                 <div class="accordion-title-wrap">
@@ -309,7 +336,6 @@
                 </div>
               </button>
               <div class="accordion-body">
-                <!-- Preset Nudges -->
                 <div class="preset-nudges-group">
                   <span class="preset-label">One-Click Guiding Nudges:</span>
                   <div class="preset-buttons">
@@ -325,7 +351,6 @@
                   </div>
                 </div>
 
-                <!-- Custom Broadcast Form -->
                 <form id="teacherDirectMessageForm" class="direct-msg-form mt-3">
                   <label for="teacherDirectInput" class="input-label">Custom Instructor Broadcast:</label>
                   <textarea id="teacherDirectInput" class="form-control" rows="2" placeholder="Type a prompt or guideline to broadcast to all students..."></textarea>
@@ -337,7 +362,7 @@
               </div>
             </div>
 
-            <!-- Accordion 4: Connected Students Roster (Collapsed by default) -->
+            <!-- Accordion 4: Connected Students Roster -->
             <div class="accordion-item" id="accRoster">
               <button type="button" class="accordion-header" onclick="toggleAccordion('accRoster')">
                 <div class="accordion-title-wrap">
@@ -367,23 +392,39 @@
     <!-- ========================================== -->
     <section id="studentView" class="view-panel hidden">
       
-      <!-- Waiting Room Overlay -->
+      <!-- Waiting Room Overlay with Pre-Session Amendment Submission -->
       <div id="studentWaitingOverlay" class="waiting-overlay">
         <div class="waiting-card card-frosted">
           <div class="waiting-icon-pulse">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           </div>
-          <h2 class="waiting-title">Waiting for Teacher to Start the Deliberation</h2>
-          <p class="waiting-subtext">Your instructor will open the floor shortly. Please review your constitutional objective below.</p>
+          <h2 class="waiting-title">Waiting for Teacher to Open Deliberation</h2>
+          <p class="waiting-subtext">Your instructor will launch the class discussion shortly. You can propose an amendment right now for teacher review!</p>
           
-          <div class="briefing-box">
+          <div class="briefing-box mb-3">
             <div class="briefing-rule-preview">
-              <span class="sub-label">Current Clause 4.1 under Review:</span>
-              <p>"All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."</p>
+              <span class="sub-label">Current Constitutional Baseline:</span>
+              <p id="studentWaitingBaselineRule">"Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."</p>
             </div>
             <div class="briefing-notes">
-              <p><strong>Context &amp; Goal:</strong> Many classmates speak Telugu at home. Work together as a class to decide whether English should be limited to classroom lessons, allowing home languages in informal spaces (playground, lunch mess) with fairness and inclusion for all peers.</p>
+              <p><strong>Your Democratic Voice:</strong> Do you feel this rule needs to be amended? Submit your proposed wording below. Your teacher will review all proposals before opening deliberation.</p>
             </div>
+          </div>
+
+          <!-- Pre-Session Proposal Form (Step 1 in requested workflow) -->
+          <div class="pre-proposal-box">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; text-align: left; font-weight: 700;">📜 Propose an Amendment to the Teacher:</h4>
+            <form id="preSessionProposalForm" style="text-align: left;">
+              <div class="form-group">
+                <textarea id="preProposedClauseInput" class="form-control" rows="2" placeholder="e.g. 'English is mandatory in class, but home languages like Telugu are allowed in playground and mess.'" required></textarea>
+              </div>
+              <div class="form-group">
+                <textarea id="preProposalJustificationInput" class="form-control" rows="2" placeholder="Explain WHY this change is fair for all peers..." required></textarea>
+              </div>
+              <button type="submit" class="btn btn-indigo-primary btn-sm btn-block">
+                <span>Submit Amendment Proposal to Teacher</span> ➜
+              </button>
+            </form>
           </div>
         </div>
       </div>
@@ -398,7 +439,7 @@
               <h3 class="col-title">Class Deliberation Room</h3>
               <p class="chat-peers-status" id="studentPeersStatus">Connected Peers: Loading...</p>
             </div>
-            <span class="status-pill-subtle">Live Session</span>
+            <span class="status-pill-subtle" id="studentSessionStatusPill">Live Session</span>
           </div>
 
           <!-- Chat Stream -->
@@ -422,7 +463,7 @@
           <form id="studentChatForm" class="student-chat-form">
             <div class="input-with-actions">
               <textarea id="studentMessageInput" class="chat-textarea" rows="2" placeholder="Articulate your argument, share your experience, or reply to a peer..." required></textarea>
-              <button type="submit" class="btn btn-indigo-primary btn-send">
+              <button type="submit" class="btn btn-indigo-primary btn-send" id="btnStudentSendMsg">
                 <span>Send</span>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
               </button>
@@ -442,8 +483,8 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="22" x2="21" y2="22"></line><line x1="6" y1="18" x2="6" y2="11"></line><line x1="10" y1="18" x2="10" y2="11"></line><line x1="14" y1="18" x2="14" y2="11"></line><line x1="18" y1="18" x2="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon></svg>
               </div>
               <div>
-                <h3 class="col-title">Classroom Constitution</h3>
-                <span class="subtext">Article IV: Language Policy</span>
+                <h3 class="col-title" id="studentConstitutionTitle">Classroom Constitution</h3>
+                <span class="subtext" id="studentConstitutionSubtitle">Article IV: Language Policy</span>
               </div>
             </div>
             <button id="btnOpenProposalModal" class="btn btn-indigo-subtle btn-sm">
@@ -457,7 +498,7 @@
               <div id="studentCurrentRuleDisplay" class="legal-rule-quote">
                 "Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."
               </div>
-              <p class="rule-footnote">Requires peer consensus to formally ratify an amendment.</p>
+              <p class="rule-footnote">Requires 2/3rds peer consensus to formally ratify an amendment.</p>
             </div>
 
             <!-- Proposals Section -->
@@ -474,25 +515,25 @@
 
       </div>
 
-      <!-- Modal: Propose Amendment -->
+      <!-- Modal: Propose Amendment During Session -->
       <div id="proposalModal" class="modal-backdrop hidden">
         <div class="modal-card card-frosted">
           <div class="modal-header">
             <div class="modal-title-flex">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-              <h3>Propose Amendment to Article IV</h3>
+              <h3>Propose Amendment</h3>
             </div>
             <button type="button" id="btnCloseProposalModal" class="btn-close">&times;</button>
           </div>
           <form id="proposalForm" class="modal-body">
             <div class="form-group">
               <label for="proposedClauseInput"><strong>Proposed Clause Text:</strong></label>
-              <textarea id="proposedClauseInput" class="form-control" rows="3" placeholder="e.g. 'Rule 4.1: English shall be mandatory during classroom lessons. In the playground, dining mess, and corridors, students are free to speak their home language (such as Telugu) or English, ensuring all peers are included respectfully.'" required></textarea>
+              <textarea id="proposedClauseInput" class="form-control" rows="3" placeholder="Enter the exact amended rule wording..." required></textarea>
             </div>
 
             <div class="form-group mt-3">
               <label for="proposalJustificationInput"><strong>Explanation &amp; Justification of Decision (Mandatory):</strong></label>
-              <textarea id="proposalJustificationInput" class="form-control" rows="3" placeholder="Explain WHY this change is fair. How does it balance English learning with student comfort and peer inclusion?" required></textarea>
+              <textarea id="proposalJustificationInput" class="form-control" rows="3" placeholder="Explain WHY this change is fair. How does it balance learning goals with student comfort and peer inclusion?" required></textarea>
             </div>
 
             <div class="modal-footer">
@@ -500,6 +541,32 @@
               <button type="submit" class="btn btn-indigo-primary">Submit Proposal for Peer Vote</button>
             </div>
           </form>
+        </div>
+      </div>
+
+      <!-- Modal: Caution While Approving / Voting (Step 5 in requested workflow) -->
+      <div id="votingCautionModal" class="modal-backdrop hidden">
+        <div class="modal-card card-frosted">
+          <div class="modal-header">
+            <div class="modal-title-flex">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              <h3 style="color: #b45309;">Caution: Confirm Constitutional Vote</h3>
+            </div>
+            <button type="button" id="btnCloseCautionModal" class="btn-close">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 0.75rem;">
+              <strong>Please carefully review before confirming your vote.</strong> This vote will count toward the 2/3rds consensus needed to permanently ratify this rule in our Classroom Constitution.
+            </p>
+            <div id="cautionProposalText" class="legal-rule-quote mb-3" style="font-size: 0.88rem;"></div>
+            <p style="font-size: 0.82rem; color: var(--text-secondary);">
+              Do you agree with this amendment and its decision rationale?
+            </p>
+            <div class="modal-footer">
+              <button type="button" id="btnCancelCautionVote" class="btn btn-ghost-subtle">Re-Check / Cancel</button>
+              <button type="button" id="btnConfirmCautionVote" class="btn btn-emerald-primary">Yes, Confirm &amp; Cast Vote</button>
+            </div>
+          </div>
         </div>
       </div>
 

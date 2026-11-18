@@ -19,26 +19,85 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 // -------------------------------------------------------------
+// Curated Constitutional Topics for Teacher Selection
+// -------------------------------------------------------------
+const CURATED_TOPICS = [
+  {
+    id: 'topic_language_policy',
+    title: 'Article IV: Language of Communication in School',
+    shortTitle: 'Article IV: Language Policy',
+    scenario: 'Reviewing the rule on English-only communication. The current rule mandates English across all school premises (classroom, mess, playground, bus). Deliberate and draft an amendment to balance English learning in the classroom with linguistic freedom and emotional well-being outside the classroom for bilingual learners (e.g. Telugu speakers at home).',
+    originalRule: 'Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus.',
+    currentRule: 'Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus.',
+    suggestedAmendment: 'Rule 4.1: English is mandatory inside the classroom during lessons. In the playground, dining mess, and corridors, students may speak their home languages (such as Telugu) or English, with respect and inclusion for all peers.',
+    suggestedJustification: 'Allows multilingual learners to relax and express themselves comfortably outside class, while preserving focused English practice during lessons.',
+    keywords: [
+      'english', 'telugu', 'language', 'medium', 'mother tongue', 'home language',
+      'classroom', 'class', 'mess', 'dining', 'canteen', 'playground', 'ground',
+      'sports', 'corridor', 'bus', 'rule', 'rules', 'constitution', 'right', 'duty',
+      'rights', 'duties', 'speak', 'speaking', 'talk', 'learn', 'practice', 'exclude',
+      'exclusion', 'include', 'inclusion', 'fair', 'comfort', 'relax', 'friend',
+      'punish', 'fine', 'scared', 'hesitant', 'communicate', 'freedom', 'amendment',
+      'modify', 'change', 'agree', 'disagree', 'outside', 'inside', 'teacher', 'student'
+    ]
+  },
+  {
+    id: 'topic_digital_devices',
+    title: 'Article II: Digital Learning Devices & Mobile Phones',
+    shortTitle: 'Article II: Digital Devices',
+    scenario: 'Reviewing the strict ban on digital devices on school grounds. Deliberate whether students should have the right to use tablets or phones for collaborative learning, online research, and language translation during group projects.',
+    originalRule: 'Rule 2.1: Mobile phones and digital devices are strictly prohibited on school grounds at all times and will be confiscated if seen.',
+    currentRule: 'Rule 2.1: Mobile phones and digital devices are strictly prohibited on school grounds at all times and will be confiscated if seen.',
+    suggestedAmendment: 'Rule 2.1: Personal digital devices may be used during designated collaborative project periods for educational research and language translation, provided they are silenced during direct instruction.',
+    suggestedJustification: 'Leverages modern technology for collaborative peer inquiry while preventing classroom distractions.',
+    keywords: [
+      'device', 'phone', 'tablet', 'digital', 'screen', 'research', 'translation',
+      'distraction', 'learning', 'technology', 'access', 'rule', 'rules', 'constitution',
+      'internet', 'class', 'project', 'collaborate', 'focus', 'fair', 'amendment', 'allow'
+    ]
+  },
+  {
+    id: 'topic_restorative_justice',
+    title: 'Article V: Conflict Resolution & Restorative Circles',
+    shortTitle: 'Article V: Conflict Resolution',
+    scenario: 'Reviewing punitive detention policies for minor peer infractions. Deliberate whether peer mediation circles should replace automatic detention to foster mutual understanding and restorative justice.',
+    originalRule: 'Rule 5.1: Any peer disagreement or rule infraction results in immediate detention and loss of break privileges.',
+    currentRule: 'Rule 5.1: Any peer disagreement or rule infraction results in immediate detention and loss of break privileges.',
+    suggestedAmendment: 'Rule 5.1: Minor peer disputes shall first be resolved through student-led mediation circles to restore mutual understanding before administrative penalties are applied.',
+    suggestedJustification: 'Builds empathy, accountability, and problem-solving skills rather than resentment from punitive detentions.',
+    keywords: [
+      'conflict', 'dispute', 'mediation', 'peer', 'restorative', 'justice', 'detention',
+      'punishment', 'empathy', 'respect', 'rule', 'rules', 'constitution', 'circle',
+      'listen', 'fair', 'solve', 'peace', 'understand', 'amendment', 'accountability'
+    ]
+  }
+];
+
+// -------------------------------------------------------------
 // State Store for Collaborative Session
 // -------------------------------------------------------------
 const sessionState = {
   isStarted: false,
   startTime: null,
   pauseTime: null,
-  topic: {
-    title: "Student Sabha: Classroom Constitution - Article IV (Language of Communication)",
-    scenario: "Reviewing the rule on English-only communication. The current rule mandates English across all school premises (classroom, mess, playground, bus). Deliberate and draft an amendment to balance English learning in the classroom with linguistic freedom and emotional well-being outside the classroom for bilingual learners (e.g. Telugu speakers at home).",
-    originalRule: "Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus.",
-    currentRule: "Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."
-  },
-  // Map socket.id -> participant
-  participants: {},
+  activeTopic: CURATED_TOPICS[0], // Default featured topic (Language Policy)
+  curatedTopics: CURATED_TOPICS,
+  preSessionProposals: [],        // Proposals submitted by students before teacher starts session
+  proposals: [],                  // Active proposals under deliberation
+  participants: {},               // socket.id -> participant
   messages: [],
-  proposals: [],
   pendingAIPrompts: [],
   offTopicFlags: [],
-  autoApproveAI: false // Strict Teacher-in-the-Loop by default
+  autoApproveAI: false
 };
+
+// General off-topic distractor keywords
+const GENERAL_OFF_TOPIC_KEYWORDS = [
+  'cricket', 'ipl', 'match', 'pubg', 'freefire', 'minecraft', 'roblox', 'fifa',
+  'movie', 'cinema', 'actor', 'hero', 'song', 'instagram', 'reels', 'tiktok',
+  'youtube video', 'netflix', 'bunk', 'homework copy', 'biryani party', 'food order',
+  'cheat', 'game score', 'playstation', 'xbox'
+];
 
 // Helper: Get local network IP addresses for multi-device testing
 function getLocalNetworkAddresses() {
@@ -55,31 +114,15 @@ function getLocalNetworkAddresses() {
 }
 
 // -------------------------------------------------------------
-// NLP & Epistemic Discourse Analytics Engine
+// Topic-Scoped NLP & Discourse Analytics Engine
 // -------------------------------------------------------------
-const RELEVANT_TOPIC_KEYWORDS = [
-  'english', 'telugu', 'language', 'medium', 'mother tongue', 'home language',
-  'classroom', 'class', 'mess', 'dining', 'canteen', 'playground', 'ground',
-  'sports', 'corridor', 'bus', 'rule', 'rules', 'constitution', 'right', 'duty',
-  'rights', 'duties', 'speak', 'speaking', 'talk', 'learn', 'practice', 'exclude',
-  'exclusion', 'include', 'inclusion', 'fair', 'comfort', 'relax', 'friend',
-  'punish', 'fine', 'scared', 'hesitant', 'communicate', 'freedom', 'amendment',
-  'modify', 'change', 'agree', 'disagree', 'outside', 'inside', 'teacher', 'student'
-];
-
-const OFF_TOPIC_KEYWORDS = [
-  'cricket', 'ipl', 'match', 'pubg', 'freefire', 'minecraft', 'roblox', 'fifa',
-  'movie', 'cinema', 'actor', 'hero', 'song', 'instagram', 'reels', 'tiktok',
-  'youtube video', 'netflix', 'bunk', 'homework copy', 'biryani party', 'food order',
-  'cheat', 'game score', 'playstation', 'xbox'
-];
-
-function analyzeDiscourse(content, senderName, participants) {
+function analyzeDiscourse(content, senderName, participants, activeTopic) {
   const text = content.toLowerCase();
+  const topicKeywords = (activeTopic && activeTopic.keywords) ? activeTopic.keywords : CURATED_TOPICS[0].keywords;
 
-  // 1. Check Off-Topic Drift
-  let hasOffTopicWord = OFF_TOPIC_KEYWORDS.some(kw => text.includes(kw));
-  let hasTopicWord = RELEVANT_TOPIC_KEYWORDS.some(kw => text.includes(kw));
+  // 1. Check Off-Topic Drift strictly against the active topic
+  let hasOffTopicWord = GENERAL_OFF_TOPIC_KEYWORDS.some(kw => text.includes(kw));
+  let hasTopicWord = topicKeywords.some(kw => text.includes(kw));
   let isOffTopic = hasOffTopicWord && !hasTopicWord;
 
   // 2. Classify Epistemic Type
@@ -135,7 +178,6 @@ function calculateInclusivityMetrics() {
     totalWords += s.wordCount;
     totalMessages += s.messageCount;
 
-    // Determine student engagement status
     const inactiveSeconds = (now - s.lastActiveTime) / 1000;
     if (s.messageCount === 0 || inactiveSeconds > 60) {
       s.status = 'silent';
@@ -146,7 +188,6 @@ function calculateInclusivityMetrics() {
     }
   });
 
-  // Calculate percentage of words per student and Gini coefficient (Inequality Index)
   const studentMetrics = students.map(s => {
     const wordShare = totalWords > 0 ? Math.round((s.wordCount / totalWords) * 100) : Math.round(100 / totalStudents);
     return {
@@ -162,7 +203,6 @@ function calculateInclusivityMetrics() {
     };
   });
 
-  // Gini coefficient calculation for word distribution
   let giniSkew = 0;
   if (totalStudents > 1 && totalWords > 0) {
     let diffSum = 0;
@@ -194,7 +234,7 @@ function calculateInclusivityMetrics() {
 }
 
 // -------------------------------------------------------------
-// Inclusivity Trigger & Scaffold Generator
+// Scaffolding Generator (Strictly Scoped to Active Topic)
 // -------------------------------------------------------------
 function evaluateInclusivityAndGenerateAIPrompts() {
   if (!sessionState.isStarted) return;
@@ -203,25 +243,29 @@ function evaluateInclusivityAndGenerateAIPrompts() {
   if (students.length < 2) return;
 
   const metrics = calculateInclusivityMetrics();
-  const totalWords = metrics.totalWords;
   const now = Date.now();
+  const topic = sessionState.activeTopic;
 
   // 1. Silent Student Detection
   const silentStudents = metrics.students.filter(s => s.status === 'silent' && s.lastActiveSecondsAgo >= 45);
   for (const s of silentStudents) {
-    // Check if prompt already pending for this student in last 60 seconds
     const existing = sessionState.pendingAIPrompts.find(
       p => p.targetStudentName === s.name && (now - p.timestamp < 60000) && p.status === 'pending'
     );
     if (!existing) {
+      let promptText = `@${s.name}, we would love to hear your perspective on ${topic.shortTitle}! What amendment to this rule would feel fairest to you and your peers?`;
+      if (topic.id === 'topic_language_policy') {
+        promptText = `@${s.name}, we would love to hear your thoughts! Do you feel speaking home languages like Telugu should be allowed during lunchtime in the mess or sports in the playground? What rule would feel fairest to you?`;
+      }
+
       const promptId = 'ai_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
       const promptObj = {
         id: promptId,
         type: 'inclusivity_silent',
         targetStudentName: s.name,
         targetStudentId: s.id,
-        suggestedPrompt: `@${s.name}, we would love to hear your thoughts! Do you feel speaking home languages like Telugu should be allowed during lunchtime in the mess or sports in the playground? What rule would feel fairest to you?`,
-        rationale: `Silent learner prompt: ${s.name} has contributed ${s.wordCount} words (${s.wordShare}%). Prompt invites their lived perspective on the dining/sports context without putting them on the spot.`,
+        suggestedPrompt: promptText,
+        rationale: `Silent learner scaffold: ${s.name} has contributed ${s.wordCount} words. Prompt connects to the dilemma in ${topic.shortTitle}.`,
         timestamp: now,
         status: 'pending'
       };
@@ -230,7 +274,7 @@ function evaluateInclusivityAndGenerateAIPrompts() {
     }
   }
 
-  // 2. Dominant Student Pacing (if 1 student speaks > 65% with > 30 words and >= 3 total messages)
+  // 2. Dominance Student Pacing
   if (metrics.totalMessages >= 4 && metrics.giniSkew > 0.45) {
     const dominant = metrics.students.find(s => s.wordShare >= 65 && s.wordCount >= 30);
     const quiet = metrics.students.find(s => s.wordShare <= 15);
@@ -244,8 +288,8 @@ function evaluateInclusivityAndGenerateAIPrompts() {
           id: promptId,
           type: 'dominance_pacing',
           targetStudentName: dominant.name,
-          suggestedPrompt: `Great points, @${dominant.name}! To build group consensus on Article IV, could you ask @${quiet.name} what potential concerns or edge cases they see with your proposal?`,
-          rationale: `Dominance pacing: ${dominant.name} currently holds ${dominant.wordShare}% of total talk-time. This prompt scaffolds them to practice active listening and invite peer critique.`,
+          suggestedPrompt: `Great points, @${dominant.name}! To build group consensus on ${topic.shortTitle}, could you ask @${quiet.name} what potential concerns or edge cases they see with your proposal?`,
+          rationale: `Dominance pacing: ${dominant.name} holds ${dominant.wordShare}% of conversation. Encourages transactive inquiry.`,
           timestamp: now,
           status: 'pending'
         };
@@ -256,24 +300,11 @@ function evaluateInclusivityAndGenerateAIPrompts() {
   }
 }
 
-// Run periodic inclusivity check every 10 seconds
+// Periodic check
 setInterval(() => {
   evaluateInclusivityAndGenerateAIPrompts();
   broadcastMetricsUpdate();
 }, 10000);
-
-// Helper to broadcast state to teachers and students
-function broadcastSessionState() {
-  const metrics = calculateInclusivityMetrics();
-  io.emit('session:state', {
-    isStarted: sessionState.isStarted,
-    startTime: sessionState.startTime,
-    topic: sessionState.topic,
-    metrics,
-    proposals: sessionState.proposals,
-    autoApproveAI: sessionState.autoApproveAI
-  });
-}
 
 function broadcastMetricsUpdate() {
   const metrics = calculateInclusivityMetrics();
@@ -284,6 +315,10 @@ function broadcastTeacherUpdate() {
   const metrics = calculateInclusivityMetrics();
   io.to('teachers').emit('teacher:dashboard_update', {
     metrics,
+    activeTopic: sessionState.activeTopic,
+    curatedTopics: sessionState.curatedTopics,
+    preSessionProposals: sessionState.preSessionProposals,
+    proposals: sessionState.proposals,
     pendingAIPrompts: sessionState.pendingAIPrompts.filter(p => p.status === 'pending'),
     offTopicFlags: sessionState.offTopicFlags,
     sessionStarted: sessionState.isStarted
@@ -294,14 +329,24 @@ function broadcastTeacherUpdate() {
 // Socket.IO Real-Time Handlers
 // -------------------------------------------------------------
 io.on('connection', (socket) => {
-  // Join Session
-  socket.on('join', ({ role, name, rollNo }) => {
-    const cleanName = (name || '').trim() || (role === 'teacher' ? 'Teacher' : 'Student');
+  // Join Session (With Secret Passcode Validation for Teacher)
+  socket.on('join', ({ role, name, rollNo, passcode }) => {
+    const cleanRole = role === 'teacher' ? 'teacher' : 'student';
+    const cleanName = (name || '').trim() || (cleanRole === 'teacher' ? 'Teacher' : 'Student');
     const cleanRoll = (rollNo || '').trim();
+
+    // Teacher secret code check
+    if (cleanRole === 'teacher') {
+      const cleanPass = (passcode || '').trim();
+      if (cleanPass !== 'teacher') {
+        socket.emit('auth:error', { message: 'Invalid teacher secret code. Please enter "teacher" to access the Teacher Portal.' });
+        return;
+      }
+    }
 
     sessionState.participants[socket.id] = {
       id: socket.id,
-      role: role === 'teacher' ? 'teacher' : 'student',
+      role: cleanRole,
       name: cleanName,
       rollNo: cleanRoll,
       joinedAt: Date.now(),
@@ -312,19 +357,21 @@ io.on('connection', (socket) => {
       status: 'active'
     };
 
-    if (role === 'teacher') {
+    if (cleanRole === 'teacher') {
       socket.join('teachers');
     } else {
       socket.join('students');
     }
 
-    // Send full initial state to the connecting client
+    // Send full initial state to connecting client
     socket.emit('init', {
       user: sessionState.participants[socket.id],
       isStarted: sessionState.isStarted,
-      topic: sessionState.topic,
-      messages: sessionState.messages,
+      activeTopic: sessionState.activeTopic,
+      curatedTopics: sessionState.curatedTopics,
+      preSessionProposals: sessionState.preSessionProposals,
       proposals: sessionState.proposals,
+      messages: sessionState.messages,
       metrics: calculateInclusivityMetrics()
     });
 
@@ -337,20 +384,108 @@ io.on('connection', (socket) => {
     broadcastTeacherUpdate();
   });
 
+  // Student Submits Proposed Amendment (Can occur before OR after session starts!)
+  socket.on('constitution:propose_amendment', ({ proposedText, justification }) => {
+    const sender = sessionState.participants[socket.id];
+    if (!sender) return;
+
+    const cleanText = (proposedText || '').trim();
+    const cleanJustification = (justification || '').trim();
+
+    if (!cleanText || !cleanJustification) {
+      socket.emit('error:notice', { message: 'Both the proposed clause text and decision justification are required.' });
+      return;
+    }
+
+    // Pre-session submission (Step 1 in requested workflow)
+    if (!sessionState.isStarted) {
+      const prePropObj = {
+        id: 'prop_pre_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+        proposedBy: socket.id,
+        studentName: sender.name,
+        rollNo: sender.rollNo,
+        proposedText: cleanText,
+        justification: cleanJustification,
+        timestamp: Date.now(),
+        status: 'pre_session_review',
+        votes: {
+          [socket.id]: { vote: 'accept', studentName: sender.name }
+        }
+      };
+
+      sessionState.preSessionProposals.push(prePropObj);
+
+      // Notify the submitting student
+      socket.emit('student:pre_session_proposal_submitted', {
+        proposal: prePropObj,
+        message: 'Your amendment proposal has been submitted to your teacher for review! The teacher will select it to open for group deliberation.'
+      });
+
+      // Notify teachers in real time
+      io.to('teachers').emit('teacher:new_pre_session_proposal', {
+        proposal: prePropObj,
+        preSessionProposals: sessionState.preSessionProposals
+      });
+
+      broadcastTeacherUpdate();
+      return;
+    }
+
+    // Active session submission
+    const words = (cleanText + ' ' + cleanJustification).split(/\s+/).filter(w => w.length > 0).length;
+    sender.wordCount += words;
+    sender.messageCount += 1;
+    sender.lastActiveTime = Date.now();
+
+    const proposalObj = {
+      id: 'prop_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+      proposedBy: socket.id,
+      studentName: sender.name,
+      rollNo: sender.rollNo,
+      proposedText: cleanText,
+      justification: cleanJustification,
+      timestamp: Date.now(),
+      status: 'open',
+      votes: {
+        [socket.id]: { vote: 'accept', studentName: sender.name }
+      }
+    };
+
+    sessionState.proposals.push(proposalObj);
+
+    const proposalChatMsg = {
+      id: 'sys_' + Date.now(),
+      senderId: 'system',
+      senderName: 'Student Sabha · Constitution Desk',
+      senderRole: 'system',
+      content: `📜 ${sender.name} proposed an amendment to ${sessionState.activeTopic.shortTitle}!\n"${cleanText}"\nJustification: ${cleanJustification}`,
+      timestamp: Date.now(),
+      epistemicType: 'proposal'
+    };
+    sessionState.messages.push(proposalChatMsg);
+
+    io.emit('constitution:proposal_created', {
+      proposal: proposalObj,
+      chatMessage: proposalChatMsg
+    });
+
+    broadcastMetricsUpdate();
+    broadcastTeacherUpdate();
+  });
+
   // Student Sends Chat Message
   socket.on('chat:message', ({ content }) => {
     const sender = sessionState.participants[socket.id];
     if (!sender) return;
 
     if (!sessionState.isStarted && sender.role === 'student') {
-      socket.emit('error:notice', { message: 'Discussion has not been started by the teacher yet.' });
+      socket.emit('error:notice', { message: 'Discussion has not been opened by the teacher yet.' });
       return;
     }
 
     const trimmedContent = (content || '').trim();
     if (!trimmedContent) return;
 
-    // Update student activity & words
     const words = trimmedContent.split(/\s+/).filter(w => w.length > 0).length;
     sender.wordCount += words;
     sender.charCount += trimmedContent.length;
@@ -358,8 +493,8 @@ io.on('connection', (socket) => {
     sender.lastActiveTime = Date.now();
     sender.status = 'active';
 
-    // Discourse analysis
-    const analysis = analyzeDiscourse(trimmedContent, sender.name, sessionState.participants);
+    // Discourse analysis scoped to the active topic
+    const analysis = analyzeDiscourse(trimmedContent, sender.name, sessionState.participants, sessionState.activeTopic);
 
     const messageObj = {
       id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
@@ -378,7 +513,7 @@ io.on('connection', (socket) => {
     sessionState.messages.push(messageObj);
     io.emit('chat:new_message', messageObj);
 
-    // If message is Off-Topic, trigger teacher flag and intervention card
+    // Off-topic drift alert scoped to active topic
     if (analysis.isOffTopic) {
       const flagId = 'flag_' + Date.now();
       const flagObj = {
@@ -386,7 +521,7 @@ io.on('connection', (socket) => {
         studentName: sender.name,
         studentRoll: sender.rollNo,
         messageContent: trimmedContent,
-        reason: 'Discussion drifted off-topic away from Language Policy.',
+        reason: `Discussion drifted off-topic away from ${sessionState.activeTopic.shortTitle}.`,
         timestamp: Date.now()
       };
       sessionState.offTopicFlags.push(flagObj);
@@ -396,8 +531,8 @@ io.on('connection', (socket) => {
         id: redirectPromptId,
         type: 'off_topic_redirect',
         targetStudentName: sender.name,
-        suggestedPrompt: `Gentle reminder to the group: Let's focus our discussion on Article IV (Language of Communication). Should students be permitted to speak Telugu during lunch and outdoor sports? How does this protect everyone's rights?`,
-        rationale: `Off-topic intervention: ${sender.name} posted a message unrelated to the constitution. This prompt refocuses discussion on the language policy dilemma.`,
+        suggestedPrompt: `Gentle reminder to the class: Let's keep our focus on ${sessionState.activeTopic.shortTitle}. How can our proposed amendment best balance peer rights and classroom goals?`,
+        rationale: `Off-topic intervention: ${sender.name} posted a message unrelated to ${sessionState.activeTopic.shortTitle}.`,
         timestamp: Date.now(),
         status: 'pending'
       };
@@ -405,69 +540,7 @@ io.on('connection', (socket) => {
       broadcastTeacherUpdate();
     }
 
-    // Evaluate balance and generate prompts if needed
     evaluateInclusivityAndGenerateAIPrompts();
-    broadcastMetricsUpdate();
-    broadcastTeacherUpdate();
-  });
-
-  // Student Proposes an Amendment to the Shared Constitution Artefact
-  socket.on('constitution:propose_amendment', ({ proposedText, justification }) => {
-    const sender = sessionState.participants[socket.id];
-    if (!sender) return;
-
-    if (!sessionState.isStarted && sender.role === 'student') {
-      socket.emit('error:notice', { message: 'Discussion has not been started yet.' });
-      return;
-    }
-
-    const cleanText = (proposedText || '').trim();
-    const cleanJustification = (justification || '').trim();
-
-    if (!cleanText || !cleanJustification) {
-      socket.emit('error:notice', { message: 'Both the proposed text and your justification/rationale are required.' });
-      return;
-    }
-
-    // Add words from proposal to student's score
-    const words = (cleanText + ' ' + cleanJustification).split(/\s+/).filter(w => w.length > 0).length;
-    sender.wordCount += words;
-    sender.messageCount += 1;
-    sender.lastActiveTime = Date.now();
-
-    const proposalObj = {
-      id: 'prop_' + Date.now(),
-      proposedBy: socket.id,
-      studentName: sender.name,
-      rollNo: sender.rollNo,
-      proposedText: cleanText,
-      justification: cleanJustification,
-      timestamp: Date.now(),
-      status: 'open',
-      votes: {
-        [socket.id]: { vote: 'accept', studentName: sender.name } // Proposer naturally supports
-      }
-    };
-
-    sessionState.proposals.push(proposalObj);
-
-    // Also broadcast as a system message in chat
-    const proposalChatMsg = {
-      id: 'sys_' + Date.now(),
-      senderId: 'system',
-      senderName: 'Student Sabha · Constitution Desk',
-      senderRole: 'system',
-      content: `📜 ${sender.name} proposed an amendment to Article IV!\n" ${cleanText} "\nJustification: ${cleanJustification}`,
-      timestamp: Date.now(),
-      epistemicType: 'proposal'
-    };
-    sessionState.messages.push(proposalChatMsg);
-
-    io.emit('constitution:proposal_created', {
-      proposal: proposalObj,
-      chatMessage: proposalChatMsg
-    });
-
     broadcastMetricsUpdate();
     broadcastTeacherUpdate();
   });
@@ -476,6 +549,11 @@ io.on('connection', (socket) => {
   socket.on('constitution:vote', ({ proposalId, vote, reason }) => {
     const sender = sessionState.participants[socket.id];
     if (!sender) return;
+
+    if (!sessionState.isStarted) {
+      socket.emit('error:notice', { message: 'Voting is disabled while session is paused.' });
+      return;
+    }
 
     const proposal = sessionState.proposals.find(p => p.id === proposalId);
     if (!proposal || proposal.status !== 'open') return;
@@ -488,13 +566,12 @@ io.on('connection', (socket) => {
 
     sender.lastActiveTime = Date.now();
 
-    // Check consensus threshold
     const students = Object.values(sessionState.participants).filter(p => p.role === 'student');
     const totalStudents = students.length;
     const voteEntries = Object.values(proposal.votes);
     const acceptCount = voteEntries.filter(v => v.vote === 'accept').length;
 
-    // Consensus rule: If at least 2 students (or majority) accept, and at least 60% of joined students voted
+    // Consensus rule: Unanimous if <= 2 students; 2/3rds supermajority (>= 66%) if >= 3 students
     let consensusReached = false;
     if (totalStudents <= 2 && acceptCount >= totalStudents) {
       consensusReached = true;
@@ -504,14 +581,14 @@ io.on('connection', (socket) => {
 
     if (consensusReached) {
       proposal.status = 'accepted';
-      sessionState.topic.currentRule = proposal.proposedText;
+      sessionState.activeTopic.currentRule = proposal.proposedText;
 
       const ratificationMsg = {
         id: 'sys_ratified_' + Date.now(),
         senderId: 'system',
         senderName: 'Student Sabha · Constitution Desk',
         senderRole: 'system',
-        content: `🎉 CONSENSUS REACHED! Article IV has been formally amended by the class:\n"${proposal.proposedText}"`,
+        content: `🎉 CONSENSUS REACHED! ${sessionState.activeTopic.shortTitle} has been formally ratified by the class:\n"${proposal.proposedText}"`,
         timestamp: Date.now(),
         epistemicType: 'agreement'
       };
@@ -519,7 +596,7 @@ io.on('connection', (socket) => {
 
       io.emit('constitution:ratified', {
         proposalId: proposal.id,
-        currentRule: sessionState.topic.currentRule,
+        currentRule: sessionState.activeTopic.currentRule,
         chatMessage: ratificationMsg
       });
     } else {
@@ -536,18 +613,66 @@ io.on('connection', (socket) => {
   });
 
   // -------------------------------------------------------------
-  // Teacher-in-the-Loop Actions
+  // Teacher Topic Selection & Session Controls
   // -------------------------------------------------------------
-  socket.on('teacher:start_session', () => {
+  socket.on('teacher:launch_topic', ({ topicId, preSessionProposalId }) => {
+    let chosenTopic = null;
+
+    if (preSessionProposalId) {
+      const p = sessionState.preSessionProposals.find(item => item.id === preSessionProposalId);
+      if (p) {
+        chosenTopic = {
+          id: 'topic_student_' + p.id,
+          title: `Student Amendment by ${p.studentName}`,
+          shortTitle: `Amendment (${p.studentName})`,
+          scenario: `Deliberating on the amendment proposed by ${p.studentName}: "${p.proposedText}"`,
+          originalRule: sessionState.activeTopic.originalRule,
+          currentRule: sessionState.activeTopic.currentRule,
+          keywords: sessionState.activeTopic.keywords
+        };
+
+        const activeProp = {
+          ...p,
+          status: 'open',
+          timestamp: Date.now()
+        };
+        sessionState.proposals = [activeProp];
+      }
+    } else if (topicId) {
+      const cur = CURATED_TOPICS.find(t => t.id === topicId);
+      if (cur) {
+        chosenTopic = { ...cur };
+        if (cur.suggestedAmendment) {
+          const autoProp = {
+            id: 'prop_' + cur.id + '_' + Date.now(),
+            proposedBy: 'teacher_committee',
+            studentName: 'Classroom Constitution Committee',
+            rollNo: 'Draft',
+            proposedText: cur.suggestedAmendment,
+            justification: cur.suggestedJustification,
+            timestamp: Date.now(),
+            status: 'open',
+            votes: {}
+          };
+          sessionState.proposals = [autoProp];
+        } else {
+          sessionState.proposals = [];
+        }
+      }
+    }
+
+    if (!chosenTopic) chosenTopic = CURATED_TOPICS[0];
+
+    sessionState.activeTopic = chosenTopic;
     sessionState.isStarted = true;
-    sessionState.startTime = sessionState.startTime || Date.now();
+    sessionState.startTime = Date.now();
 
     const startMsg = {
       id: 'sys_start_' + Date.now(),
       senderId: 'teacher',
       senderName: 'Teacher',
       senderRole: 'teacher',
-      content: `📢 Discussion is now officially open! Review Article IV on the right and begin sharing your views. Remember to explain your reasons clearly!`,
+      content: `📢 Discussion is now officially open on: "${chosenTopic.title}"!\nReview the amendment proposal on the right, share your arguments, and vote to reach consensus.`,
       timestamp: Date.now(),
       epistemicType: 'inquiry'
     };
@@ -556,6 +681,35 @@ io.on('connection', (socket) => {
     io.emit('session:started', {
       isStarted: true,
       startTime: sessionState.startTime,
+      activeTopic: sessionState.activeTopic,
+      proposals: sessionState.proposals,
+      startMessage: startMsg
+    });
+
+    broadcastTeacherUpdate();
+  });
+
+  socket.on('teacher:start_session', () => {
+    // If not started with launch_topic, starts with current activeTopic
+    sessionState.isStarted = true;
+    sessionState.startTime = sessionState.startTime || Date.now();
+
+    const startMsg = {
+      id: 'sys_start_' + Date.now(),
+      senderId: 'teacher',
+      senderName: 'Teacher',
+      senderRole: 'teacher',
+      content: `📢 Discussion is now officially open on "${sessionState.activeTopic.shortTitle}"!`,
+      timestamp: Date.now(),
+      epistemicType: 'inquiry'
+    };
+    sessionState.messages.push(startMsg);
+
+    io.emit('session:started', {
+      isStarted: true,
+      startTime: sessionState.startTime,
+      activeTopic: sessionState.activeTopic,
+      proposals: sessionState.proposals,
       startMessage: startMsg
     });
 
@@ -572,10 +726,11 @@ io.on('connection', (socket) => {
     sessionState.isStarted = false;
     sessionState.startTime = null;
     sessionState.messages = [];
+    sessionState.preSessionProposals = [];
     sessionState.proposals = [];
     sessionState.pendingAIPrompts = [];
     sessionState.offTopicFlags = [];
-    sessionState.topic.currentRule = sessionState.topic.originalRule;
+    sessionState.activeTopic = { ...CURATED_TOPICS[0] };
 
     Object.values(sessionState.participants).forEach(p => {
       p.wordCount = 0;
@@ -586,7 +741,8 @@ io.on('connection', (socket) => {
     });
 
     io.emit('session:reset', {
-      topic: sessionState.topic,
+      activeTopic: sessionState.activeTopic,
+      curatedTopics: sessionState.curatedTopics,
       metrics: calculateInclusivityMetrics()
     });
 
@@ -617,12 +773,10 @@ io.on('connection', (socket) => {
     sessionState.messages.push(aiMessage);
     io.emit('chat:new_message', aiMessage);
 
-    // Remove from pending
     sessionState.pendingAIPrompts.splice(promptIndex, 1);
     broadcastTeacherUpdate();
   });
 
-  // Teacher Rejects / Overrides AI Scaffold Prompt
   socket.on('teacher:reject_ai_prompt', ({ promptId }) => {
     const promptIndex = sessionState.pendingAIPrompts.findIndex(p => p.id === promptId);
     if (promptIndex !== -1) {
@@ -631,7 +785,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Teacher Direct Guidance Message (Human-in-the-Loop Broadcast)
   socket.on('teacher:send_direct_message', ({ content }) => {
     const trimmed = (content || '').trim();
     if (!trimmed) return;
@@ -650,13 +803,11 @@ io.on('connection', (socket) => {
     io.emit('chat:new_message', teacherMsg);
   });
 
-  // Teacher Dismisses Off-Topic Flag
   socket.on('teacher:dismiss_flag', ({ flagId }) => {
     sessionState.offTopicFlags = sessionState.offTopicFlags.filter(f => f.id !== flagId);
     broadcastTeacherUpdate();
   });
 
-  // Disconnection
   socket.on('disconnect', () => {
     const departing = sessionState.participants[socket.id];
     delete sessionState.participants[socket.id];
@@ -678,11 +829,10 @@ io.on('connection', (socket) => {
 server.listen(PORT, '0.0.0.0', () => {
   const localIps = getLocalNetworkAddresses();
   console.log(`\n=============================================================`);
-  console.log(`🚀 Collaborative Learning Server running on:`);
+  console.log(`🏛️  Student Sabha Server running on:`);
   console.log(`   ➜ Localhost:      http://localhost:${PORT}`);
   localIps.forEach(ip => {
-    console.log(`   ➜ Local Network:  http://${ip}:${PORT} (Access from phones/other devices)`);
+    console.log(`   ➜ Local Network:  http://${ip}:${PORT}`);
   });
   console.log(`=============================================================\n`);
 });
-

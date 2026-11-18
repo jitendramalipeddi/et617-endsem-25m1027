@@ -8,6 +8,13 @@ const sessionActionLabel = document.getElementById('sessionActionLabel');
 const btnResetSession = document.getElementById('btnResetSession');
 const sessionTimer = document.getElementById('sessionTimer');
 const teacherConnectedCount = document.getElementById('teacherConnectedCount');
+const teacherTopTopicLabel = document.getElementById('teacherTopTopicLabel');
+
+// Topic Selector Banner references
+const teacherTopicSelectionBanner = document.getElementById('teacherTopicSelectionBanner');
+const teacherPreSessionProposalsList = document.getElementById('teacherPreSessionProposalsList');
+const teacherCuratedTopicsList = document.getElementById('teacherCuratedTopicsList');
+const teacherActiveArticleTitle = document.getElementById('teacherActiveArticleTitle');
 
 // Tab references
 const tabButtons = document.querySelectorAll('.tab-btn');
@@ -47,6 +54,7 @@ function initTeacherDashboard() {
   setupTabs();
   setupAccordionRules();
   setupTeacherEventListeners();
+  renderTopicSelector();
 
   if (AppState.metrics) {
     renderTeacherMetrics(AppState.metrics);
@@ -57,13 +65,96 @@ function initTeacherDashboard() {
     AppState.messages.forEach(appendTeacherChatMessage);
     updateFeedCount();
   }
-  if (AppState.topic) {
-    teacherCurrentRule.textContent = `"${AppState.topic.currentRule}"`;
+  if (AppState.activeTopic) {
+    teacherCurrentRule.textContent = `"${AppState.activeTopic.currentRule}"`;
+    if (teacherActiveArticleTitle) teacherActiveArticleTitle.textContent = AppState.activeTopic.title;
+    if (teacherTopTopicLabel) teacherTopTopicLabel.textContent = AppState.activeTopic.shortTitle;
   }
   if (AppState.proposals) {
     renderTeacherProposals(AppState.proposals);
   }
 }
+
+// -------------------------------------------------------------
+// Topic Selection & Pre-Session Proposal Review
+// -------------------------------------------------------------
+function renderTopicSelector() {
+  if (!teacherTopicSelectionBanner) return;
+
+  if (AppState.isSessionStarted) {
+    teacherTopicSelectionBanner.classList.add('hidden');
+    return;
+  }
+
+  teacherTopicSelectionBanner.classList.remove('hidden');
+
+  // 1. Render Pre-Session Student Proposals
+  const studentProposals = AppState.preSessionProposals || [];
+  if (studentProposals.length === 0) {
+    teacherPreSessionProposalsList.innerHTML = '<div class="empty-substate">No student proposals submitted yet. Students can propose amendments in their waiting room.</div>';
+  } else {
+    let html = '';
+    studentProposals.forEach(p => {
+      html += `
+        <div class="topic-select-card">
+          <div>
+            <div class="flex-between">
+              <span class="topic-card-title">${escapeHtml(p.studentName)} [Roll: ${escapeHtml(p.rollNo || 'N/A')}]</span>
+              <span class="role-pill student" style="font-size: 0.65rem;">Student Proposal</span>
+            </div>
+            <div class="topic-card-desc" style="font-style: italic; margin-top: 0.35rem;">"${escapeHtml(p.proposedText)}"</div>
+            <div style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+              <strong>Rationale:</strong> ${escapeHtml(p.justification)}
+            </div>
+          </div>
+          <button type="button" class="btn-launch-topic" onclick="launchDeliberationOnProposal('${p.id}')">
+            <span>▶ Open for Group Deliberation</span>
+          </button>
+        </div>
+      `;
+    });
+    teacherPreSessionProposalsList.innerHTML = html;
+  }
+
+  // 2. Render Curated Constitutional Topics
+  const curated = AppState.curatedTopics || [];
+  if (curated.length === 0) {
+    teacherCuratedTopicsList.innerHTML = '<div class="empty-substate">Loading curated articles...</div>';
+  } else {
+    let html = '';
+    curated.forEach(t => {
+      const isSelected = AppState.activeTopic?.id === t.id;
+      html += `
+        <div class="topic-select-card ${isSelected ? 'active-selected' : ''}">
+          <div>
+            <div class="flex-between">
+              <span class="topic-card-title">${escapeHtml(t.title)}</span>
+              ${isSelected ? '<span class="role-pill teacher" style="font-size: 0.65rem;">Default Task</span>' : ''}
+            </div>
+            <p class="topic-card-desc">${escapeHtml(t.scenario)}</p>
+            <div class="topic-card-desc" style="font-size: 0.74rem; background: var(--bg-subtle); padding: 0.4rem; border-radius: 4px; border-left: 2px solid var(--teacher-primary);">
+              <strong>Baseline Rule:</strong> ${escapeHtml(t.originalRule)}
+            </div>
+          </div>
+          <button type="button" class="btn-launch-topic" onclick="launchDeliberationOnTopic('${t.id}')">
+            <span>▶ Start Deliberation on this Article</span>
+          </button>
+        </div>
+      `;
+    });
+    teacherCuratedTopicsList.innerHTML = html;
+  }
+}
+
+window.launchDeliberationOnTopic = function(topicId) {
+  socket.emit('teacher:launch_topic', { topicId });
+  showToast('Launching class deliberation on chosen constitutional article...', 'info');
+};
+
+window.launchDeliberationOnProposal = function(preSessionProposalId) {
+  socket.emit('teacher:launch_topic', { preSessionProposalId });
+  showToast('Launching class deliberation on student amendment proposal...', 'info');
+};
 
 // -------------------------------------------------------------
 // Tab Switching (65% Workspace Left Column)
@@ -177,6 +268,7 @@ function setupTeacherEventListeners() {
 
 function updateTeacherSessionState(isStarted) {
   if (isStarted) {
+    if (teacherTopicSelectionBanner) teacherTopicSelectionBanner.classList.add('hidden');
     sessionActionLabel.textContent = 'Pause Session';
     btnPrimarySessionAction.className = 'btn btn-ghost-subtle btn-sm';
     btnPrimarySessionAction.innerHTML = `
@@ -194,6 +286,8 @@ function updateTeacherSessionState(isStarted) {
       }, 1000);
     }
   } else {
+    if (teacherTopicSelectionBanner) teacherTopicSelectionBanner.classList.remove('hidden');
+    renderTopicSelector();
     sessionActionLabel.textContent = 'Start Discussion';
     btnPrimarySessionAction.className = 'btn btn-emerald-primary btn-sm';
     btnPrimarySessionAction.innerHTML = `
@@ -531,6 +625,17 @@ function renderTeacherProposals(proposals) {
 // -------------------------------------------------------------
 socket.on('teacher:dashboard_update', (data) => {
   if (AppState.currentUser?.role !== 'teacher') return;
+  if (data.activeTopic) {
+    AppState.activeTopic = data.activeTopic;
+    if (teacherTopTopicLabel) teacherTopTopicLabel.textContent = data.activeTopic.shortTitle;
+    if (teacherActiveArticleTitle) teacherActiveArticleTitle.textContent = data.activeTopic.title;
+    if (teacherCurrentRule) teacherCurrentRule.textContent = `"${data.activeTopic.currentRule}"`;
+  }
+  if (data.curatedTopics) AppState.curatedTopics = data.curatedTopics;
+  if (data.preSessionProposals) {
+    AppState.preSessionProposals = data.preSessionProposals;
+    renderTopicSelector();
+  }
   if (data.metrics) {
     renderTeacherMetrics(data.metrics);
     renderTeacherRoster(data.metrics);
@@ -538,6 +643,17 @@ socket.on('teacher:dashboard_update', (data) => {
   if (data.pendingAIPrompts) renderAIPromptsQueue(data.pendingAIPrompts);
   if (data.offTopicFlags) renderOffTopicFlags(data.offTopicFlags);
   if (data.sessionStarted !== undefined) updateTeacherSessionState(data.sessionStarted);
+  if (data.proposals) {
+    AppState.proposals = data.proposals;
+    renderTeacherProposals(data.proposals);
+  }
+});
+
+socket.on('teacher:new_pre_session_proposal', (data) => {
+  if (AppState.currentUser?.role !== 'teacher') return;
+  AppState.preSessionProposals = data.preSessionProposals;
+  renderTopicSelector();
+  showToast(`New student proposal submitted by ${data.proposal.studentName} for review!`, 'info');
 });
 
 socket.on('chat:new_message', (msg) => {
