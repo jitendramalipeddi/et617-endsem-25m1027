@@ -1967,3 +1967,249 @@ body {
   border-radius: var(--radius-md);
   padding: 1.1rem;
 }
+
+/* ========================================================== */
+/* Global Screen Footers & Identity Token Badge (25m1027)     */
+/* ========================================================== */
+.app-screen-footer {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid var(--border-divider);
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-top: auto;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.footer-separator {
+  color: var(--border-subtle);
+}
+
+.footer-id-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  background: rgba(79, 70, 229, 0.08);
+  border: 1px solid rgba(79, 70, 229, 0.25);
+  border-radius: var(--radius-full);
+  color: #4338CA;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.footer-id-badge strong {
+  font-weight: 700;
+  color: #3730A3;
+}
+
+.btn-link-about {
+  background: none;
+  border: none;
+  color: var(--student-primary);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0.1rem 0.3rem;
+  transition: color 0.15s ease;
+}
+
+.btn-link-about:hover {
+  color: var(--student-hover);
+}
+
+.btn-nav-about {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-divider);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-nav-about:hover {
+  background: #FFFFFF;
+  color: var(--student-primary);
+  border-color: rgba(79, 70, 229, 0.3);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* ========================================================== */
+/* About Screen View Styling (Identity Token: 25m1027)        */
+/* ========================================================== */
+.about-container {
+  max-width: 960px;
+  margin: 1.5rem auto 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.about-card {
+  padding: 2.25rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 2rem;
+}
+
+.about-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-divider);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.about-emblem-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-emblem-lg {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  color: #FFFFFF;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+.about-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.about-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+
+.about-token-banner {
+  background: linear-gradient(135deg, rgba(238, 242, 255, 0.95), rgba(245, 243, 255, 0.95));
+  border: 1.5px solid rgba(99, 102, 241, 0.35);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
+}
+
+.token-banner-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--student-primary);
+}
+
+.token-banner-value {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #1E1B4B;
+  letter-spacing: 0.04em;
+  margin: 0.25rem 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.token-banner-sub {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+
+.about-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.spec-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-divider);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.spec-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.spec-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--student-primary);
+  display: inline-block;
+  margin-bottom: 0.4rem;
+}
+
+.spec-code {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.45rem;
+}
+
+.spec-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.about-challenge-box {
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid var(--border-divider);
+  border-left: 4px solid var(--teacher-primary);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.about-challenge-box h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.about-challenge-box p {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.about-actions {
+  text-align: center;
+  margin-top: 1rem;
+}

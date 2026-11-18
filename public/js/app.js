@@ -26,8 +26,28 @@ window.AppState = AppState;
 const views = {
   login: document.getElementById('loginView'),
   teacher: document.getElementById('teacherView'),
-  student: document.getElementById('studentView')
+  student: document.getElementById('studentView'),
+  about: document.getElementById('aboutView')
 };
+
+let previousActiveView = 'login';
+
+function openAboutView() {
+  Object.keys(views).forEach(v => {
+    if (v !== 'about' && views[v] && views[v].classList.contains('active')) {
+      previousActiveView = v;
+    }
+  });
+  switchView('about');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.openAboutView = openAboutView;
+
+function closeAboutView() {
+  switchView(previousActiveView || 'login');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.closeAboutView = closeAboutView;
 
 const userBadge = document.getElementById('userBadge');
 const userRoleIndicator = document.getElementById('userRoleIndicator');

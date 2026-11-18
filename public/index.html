@@ -32,11 +32,16 @@
       </div>
       <div class="brand-title-wrap" style="display: flex; align-items: center; gap: 0.5rem;">
         <span class="brand-title">Student Sabha</span>
-        <span class="app-identity-token" style="font-size: 0.72rem; padding: 0.18rem 0.5rem; background: rgba(79, 70, 229, 0.08); border: 1px solid rgba(79, 70, 229, 0.2); border-radius: 9999px; font-weight: 600; color: #4338ca; letter-spacing: 0.03em;">et617-25m1027</span>
+        <span class="app-identity-token" style="font-size: 0.72rem; padding: 0.18rem 0.5rem; background: rgba(79, 70, 229, 0.08); border: 1px solid rgba(79, 70, 229, 0.2); border-radius: 9999px; font-weight: 600; color: #4338ca; letter-spacing: 0.03em;">25m1027</span>
       </div>
     </div>
     
-    <div class="header-right">
+    <div class="header-right" style="display: flex; align-items: center; gap: 0.75rem;">
+      <button type="button" id="btnHeaderAbout" class="btn-nav-about" onclick="openAboutView()" title="About Student Sabha & Identity Token (25m1027)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span>About</span>
+      </button>
+
       <div id="userBadge" class="user-badge hidden">
         <span id="userRoleIndicator" class="role-pill">Role</span>
         <span id="userNameIndicator" class="user-name">User</span>
@@ -131,8 +136,15 @@
           </div>
         </div>
 
-        <footer class="app-footer">
-          <p>© 2026 Student Sabha · Collaborative Learning &amp; Deliberative Governance</p>
+        <!-- Screen 1 Footer -->
+        <footer class="app-screen-footer">
+          <div class="footer-inner">
+            <span>© 2026 Student Sabha · Collaborative Learning &amp; Deliberative Governance</span>
+            <span class="footer-separator">·</span>
+            <span class="footer-id-badge">Identity Token: <strong>25m1027</strong></span>
+            <span class="footer-separator">·</span>
+            <button type="button" class="btn-link-about" onclick="openAboutView()">About Screen</button>
+          </div>
         </footer>
       </div>
     </section>
@@ -386,6 +398,17 @@
         </div>
 
       </div>
+
+      <!-- Screen 2 (Teacher Dashboard) Footer -->
+      <footer class="app-screen-footer">
+        <div class="footer-inner">
+          <span>© 2026 Student Sabha · Teacher-in-the-Loop Orchestration</span>
+          <span class="footer-separator">·</span>
+          <span class="footer-id-badge">Identity Token: <strong>25m1027</strong></span>
+          <span class="footer-separator">·</span>
+          <button type="button" class="btn-link-about" onclick="openAboutView()">About Screen</button>
+        </div>
+      </footer>
     </section>
 
     <!-- ========================================== -->
@@ -426,6 +449,12 @@
                 <span>Submit Amendment Proposal to Teacher</span> ➜
               </button>
             </form>
+          </div>
+
+          <!-- Waiting Room Token Footer -->
+          <div class="waiting-footer mt-3" style="text-align: center; font-size: 0.76rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+            <span>Identity Token: <strong>25m1027</strong></span> · 
+            <button type="button" class="btn-link-about" onclick="openAboutView()">About Screen</button>
           </div>
         </div>
       </div>
@@ -595,6 +624,109 @@
         </div>
       </div>
 
+      <!-- Screen 3 (Student Workspace) Footer -->
+      <footer class="app-screen-footer">
+        <div class="footer-inner">
+          <span>© 2026 Student Sabha · Collaborative Learning &amp; Shared Constitution</span>
+          <span class="footer-separator">·</span>
+          <span class="footer-id-badge">Identity Token: <strong>25m1027</strong></span>
+          <span class="footer-separator">·</span>
+          <button type="button" class="btn-link-about" onclick="openAboutView()">About Screen</button>
+        </div>
+      </footer>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 4. ABOUT SCREEN (IDENTITY TOKEN: 25m1027)  -->
+    <!-- ========================================== -->
+    <section id="aboutView" class="view-panel hidden">
+      <div class="about-container">
+        <div class="about-card card-frosted">
+          
+          <!-- About Header -->
+          <div class="about-header">
+            <div class="about-emblem-wrap">
+              <div class="brand-emblem-lg">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <line x1="3" y1="22" x2="21" y2="22"></line>
+                  <line x1="6" y1="18" x2="6" y2="11"></line>
+                  <line x1="10" y1="18" x2="10" y2="11"></line>
+                  <line x1="14" y1="18" x2="14" y2="11"></line>
+                  <line x1="18" y1="18" x2="18" y2="11"></line>
+                  <polygon points="12 2 20 7 4 7"></polygon>
+                </svg>
+              </div>
+              <div>
+                <h2 class="about-title">About Student Sabha</h2>
+                <p class="about-subtitle">Computer-Supported Collaborative Learning (CSCL) for Democratic Classroom Governance</p>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-indigo-subtle btn-sm" onclick="closeAboutView()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              <span>Return to Workspace</span>
+            </button>
+          </div>
+
+          <!-- Identity Token Prominent Feature Card -->
+          <div class="about-token-banner">
+            <div class="token-banner-label">Candidate Identity Token</div>
+            <div class="token-banner-value">25m1027</div>
+            <p class="token-banner-sub">ET617: Educational Technology &amp; Collaborative Learning Application</p>
+          </div>
+
+          <!-- Course & Card Specifications Grid -->
+          <div class="about-specs-grid">
+            <div class="spec-card">
+              <span class="spec-badge">Problem Statement</span>
+              <h4 class="spec-code">P6 – Collaborative Problem Solving</h4>
+              <p class="spec-desc">Group learning application with a shared constitutional artefact, epistemic justification of decisions, transactive peer feedback, and supermajority consensus resolution.</p>
+            </div>
+
+            <div class="spec-card">
+              <span class="spec-badge">Curricular Topic</span>
+              <h4 class="spec-code">T7 – Draft Classroom Constitution</h4>
+              <p class="spec-desc">Deliberating rights and duties under Article IV (Language Policy), balancing academic English instructional goals with peer social comfort.</p>
+            </div>
+
+            <div class="spec-card">
+              <span class="spec-badge">Learner Context</span>
+              <h4 class="spec-code">L8 – Bilingual Home Language</h4>
+              <p class="spec-desc">Learners whose home language (Telugu) differs from the school instructional medium (English), needing psychological safety in informal school spaces.</p>
+            </div>
+
+            <div class="spec-card">
+              <span class="spec-badge">Design Constraint</span>
+              <h4 class="spec-code">C5 – Teacher-in-the-Loop (TITL)</h4>
+              <p class="spec-desc">Teacher command view monitoring real-time equity (Gini skew index) with a mandatory review queue to approve or override AI feedback before students see it.</p>
+            </div>
+          </div>
+
+          <!-- Design Challenge Resolution -->
+          <div class="about-challenge-box">
+            <h4>⚖️ Design Challenge: Discriminating Collaboration from Free-Riding</h4>
+            <p><strong>Signals Used:</strong> Real-time Gini coefficient of word count inequality ($G &gt; 0.40$ indicates severe monopolization), unprompted silence duration ($&gt; 3$ min), and transactive reply ratio ($TQ$).</p>
+            <p class="mt-2"><strong>System Response:</strong> Teacher dashboard alerts, targeted Socratic silence-breaker scaffolds in the TITL queue, teacher pause controls, and a mandatory 2/3rds consensus supermajority gate with reflective caution confirmations.</p>
+          </div>
+
+          <!-- Return Button Centered -->
+          <div class="about-actions">
+            <button type="button" class="btn btn-indigo-primary" onclick="closeAboutView()">
+              <span>← Return to Application</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Screen 4 (About Screen) Footer -->
+        <footer class="app-screen-footer">
+          <div class="footer-inner">
+            <span>© 2026 Student Sabha · Collaborative Problem-Solving Application</span>
+            <span class="footer-separator">·</span>
+            <span class="footer-id-badge">Identity Token: <strong>25m1027</strong></span>
+          </div>
+        </footer>
+      </div>
     </section>
 
   </main>
