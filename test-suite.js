@@ -34,6 +34,9 @@ async function runTestSuite() {
   ]);
 
   teacher.emit('join', { role: 'teacher', name: 'Ms. Rao', rollNo: '' });
+  teacher.emit('teacher:reset_session');
+  await new Promise(r => setTimeout(r, 400));
+
   ravi.emit('join', { role: 'student', name: 'Ravi', rollNo: '101' });
   ananya.emit('join', { role: 'student', name: 'Ananya', rollNo: '102' });
   karthik.emit('join', { role: 'student', name: 'Karthik', rollNo: '103' });
