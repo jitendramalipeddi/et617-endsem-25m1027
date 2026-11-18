@@ -1,5 +1,5 @@
 // ==========================================================
-// LexiCollab: Client-Side Core State & Navigation Router
+// Student Sabha: Client-Side Core State & Navigation Router
 // ==========================================================
 
 const socket = io();
@@ -38,18 +38,18 @@ function showToast(message, type = 'info', duration = 3500) {
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   
-  let icon = 'ℹ️';
-  if (type === 'success') icon = '✅';
-  if (type === 'warning') icon = '⚠️';
-  if (type === 'error') icon = '❌';
+  let icon = 'ℹ';
+  if (type === 'success') icon = '✓';
+  if (type === 'warning') icon = '⚠';
+  if (type === 'error') icon = '✕';
 
-  toast.innerHTML = `<span>${icon}</span> <span>${escapeHtml(message)}</span>`;
+  toast.innerHTML = `<span style="font-weight: bold; margin-right: 4px;">${icon}</span> <span>${escapeHtml(message)}</span>`;
   toastContainer.appendChild(toast);
 
   setTimeout(() => {
     toast.style.opacity = '0';
-    toast.style.transform = 'translateY(8px)';
-    setTimeout(() => toast.remove(), 250);
+    toast.style.transform = 'translateY(6px)';
+    setTimeout(() => toast.remove(), 200);
   }, duration);
 }
 
@@ -80,7 +80,7 @@ function switchView(viewName) {
   if (AppState.currentUser) {
     userBadge.classList.remove('hidden');
     userRoleIndicator.textContent = AppState.currentUser.role.toUpperCase();
-    userRoleIndicator.className = `badge badge-${AppState.currentUser.role === 'teacher' ? 'success' : 'primary'}`;
+    userRoleIndicator.className = `role-pill ${AppState.currentUser.role}`;
     userNameIndicator.textContent = AppState.currentUser.name + (AppState.currentUser.rollNo ? ` (${AppState.currentUser.rollNo})` : '');
   } else {
     userBadge.classList.add('hidden');
@@ -92,12 +92,15 @@ function switchView(viewName) {
 // -------------------------------------------------------------
 document.getElementById('teacherLoginForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  const name = document.getElementById('teacherName').value.trim() || 'Ms. Rao';
+  const nameInput = document.getElementById('teacherName');
+  const name = nameInput.value.trim() || 'Teacher';
   
   socket.emit('join', {
     role: 'teacher',
     name: name,
     rollNo: ''
+  });
+});
   });
 });
 

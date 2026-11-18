@@ -3,27 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LexiCollab | CSCL Collaborative Problem-Solving & Inclusivity Platform</title>
+  <title>Student Sabha | Classroom Constitution &amp; Collaborative Deliberation</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Global App Header -->
+  <!-- Ambient Diffused Lighting Orbs -->
+  <div class="ambient-background" aria-hidden="true">
+    <div class="ambient-orb orb-saffron"></div>
+    <div class="ambient-orb orb-indigo"></div>
+    <div class="ambient-orb orb-sage"></div>
+  </div>
+
+  <!-- Global App Header (Minimal, Distraction-Free) -->
   <header class="app-header">
     <div class="header-brand">
-      <div class="brand-logo">📜</div>
+      <div class="brand-emblem" aria-hidden="true">
+        <!-- Civic Emblem SVG -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="22" x2="21" y2="22"></line>
+          <line x1="6" y1="18" x2="6" y2="11"></line>
+          <line x1="10" y1="18" x2="10" y2="11"></line>
+          <line x1="14" y1="18" x2="14" y2="11"></line>
+          <line x1="18" y1="18" x2="18" y2="11"></line>
+          <polygon points="12 2 20 7 4 7"></polygon>
+        </svg>
+      </div>
       <div>
-        <h1 class="brand-title">LexiCollab <span class="badge badge-primary">CSCL Edition</span></h1>
-        <p class="brand-subtitle">Collaborative Problem Solving &amp; Inclusivity Platform</p>
+        <span class="brand-title">Student Sabha</span>
       </div>
     </div>
+    
     <div class="header-right">
       <div id="userBadge" class="user-badge hidden">
-        <span id="userRoleIndicator" class="badge">Role</span>
+        <span id="userRoleIndicator" class="role-pill">Role</span>
         <span id="userNameIndicator" class="user-name">User</span>
-        <button id="btnLogout" class="btn btn-sm btn-outline" title="Leave and return to login">Leave</button>
+        <button id="btnLogout" class="btn-ghost" title="Leave and return to portal">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Exit</span>
+        </button>
       </div>
     </div>
   </header>
@@ -32,235 +52,313 @@
   <main class="main-container">
     
     <!-- ========================================== -->
-    <!-- 1. LOGIN & ROLE SELECTION VIEW             -->
+    <!-- 1. LANDING & ROLE SELECTION VIEW           -->
     <!-- ========================================== -->
     <section id="loginView" class="view-panel active">
       <div class="login-wrapper">
         <div class="login-hero">
-          <span class="badge badge-accent">Collaborative Problem-Solving Task</span>
-          <h2>Classroom Constitution: Language of Communication</h2>
+          <div class="pill-badge">
+            <span class="pill-dot"></span>
+            <span>Collaborative Problem-Solving Task</span>
+          </div>
+          <h2 class="hero-title">Classroom Constitution: Language of Communication</h2>
           <p class="hero-description">
-            Students are tasked with deliberating and amending <strong>Article IV (Language Policy)</strong>. 
-            The current strict rule mandates speaking <em>only English</em> across all school premises (including playground and dining mess). 
-            Learners from diverse linguistic backgrounds (e.g. Telugu speakers at home) must collaborate to amend this rule, balance English immersion with comfort and inclusion, resolve disagreements, and co-author a shared constitution.
+            Deliberate and co-author <strong>Article IV (Language Policy)</strong>. 
+            Balance English language acquisition in instructional hours with the linguistic freedom, comfort, and social inclusion of multilingual students in informal school spaces.
           </p>
         </div>
 
         <div class="roles-grid">
-          <!-- Teacher Card -->
+          <!-- Teacher Portal Card -->
           <div class="role-card teacher-card">
-            <div class="role-card-header">
-              <div class="role-icon">👩‍🏫</div>
-              <div>
-                <h3>Teacher Portal</h3>
-                <p>Orchestrate session, monitor participation skew, approve/override AI scaffolds, and direct interventions.</p>
+            <div class="role-card-content">
+              <div class="role-icon-badge badge-emerald">
+                <!-- Lucide Graduation Cap Icon -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
               </div>
+              <h3 class="role-card-title">Teacher Portal</h3>
+              <p class="role-card-desc">Orchestrate the deliberation session, monitor participation balance in real time, and review AI pedagogical scaffolds.</p>
+              
+              <form id="teacherLoginForm" class="role-form">
+                <div class="form-group">
+                  <label for="teacherName">Teacher Name</label>
+                  <input type="text" id="teacherName" class="form-control" placeholder="Enter your name" required autocomplete="name">
+                </div>
+                <button type="submit" class="btn btn-teacher btn-block">
+                  <span>Enter Teacher Dashboard</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+              </form>
             </div>
-            <form id="teacherLoginForm" class="role-form">
-              <div class="form-group">
-                <label for="teacherName">Teacher Name</label>
-                <input type="text" id="teacherName" class="form-control" placeholder="e.g. Ms. Rao" value="Ms. Rao" required>
-              </div>
-              <button type="submit" class="btn btn-teacher btn-block">
-                <span>Enter Teacher Dashboard</span> ➜
-              </button>
-            </form>
           </div>
 
-          <!-- Student Card -->
+          <!-- Student Portal Card -->
           <div class="role-card student-card">
-            <div class="role-card-header">
-              <div class="role-icon">🎓</div>
-              <div>
-                <h3>Student Portal</h3>
-                <p>Join group discussion, provide reasoned arguments, and co-author the Classroom Constitution.</p>
+            <div class="role-card-content">
+              <div class="role-icon-badge badge-indigo">
+                <!-- Lucide Users Icon -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
               </div>
+              <h3 class="role-card-title">Student Portal</h3>
+              <p class="role-card-desc">Join the shared deliberation, articulate your warrants and viewpoints, and co-draft constitutional amendments with peers.</p>
+              
+              <form id="studentLoginForm" class="role-form">
+                <div class="form-group">
+                  <label for="studentName">Student Name</label>
+                  <input type="text" id="studentName" class="form-control" placeholder="Enter your full name" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                  <label for="studentRoll">Roll Number / Student ID</label>
+                  <input type="text" id="studentRoll" class="form-control" placeholder="Enter roll number or student ID" required>
+                </div>
+                <button type="submit" class="btn btn-student btn-block">
+                  <span>Join Student Discussion</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+              </form>
             </div>
-            <form id="studentLoginForm" class="role-form">
-              <div class="form-group">
-                <label for="studentName">Student Name</label>
-                <input type="text" id="studentName" class="form-control" placeholder="Enter full name (e.g. Ravi, Ananya, Karthik)" required>
-              </div>
-              <div class="form-group">
-                <label for="studentRoll">Roll Number / Student ID</label>
-                <input type="text" id="studentRoll" class="form-control" placeholder="e.g. 101, 102, 103" required>
-              </div>
-              <button type="submit" class="btn btn-student btn-block">
-                <span>Join Student Discussion</span> ➜
-              </button>
-            </form>
           </div>
         </div>
 
-        <!-- Multi-Device / Multi-Tab Testing Instructions -->
-        <div class="testing-guide-card">
-          <div class="testing-guide-header">
-            <span class="icon">💡</span>
-            <h4>How to Test with Multiple Students (Multi-Tab or Multiple Devices)</h4>
-          </div>
-          <p>
-            You can test this application by opening it in multiple browser tabs, windows, or devices on the same local network:
-          </p>
-          <ol class="guide-steps">
-            <li><strong>Tab 1:</strong> Log in as the <strong>Teacher</strong>. You will see the Inclusivity Dashboard and the "Start Discussion" trigger.</li>
-            <li><strong>Tabs 2, 3, 4:</strong> Log in as <strong>Students</strong> (e.g. <em>Ravi - Roll 101</em>, <em>Ananya - Roll 102</em>, <em>Karthik - Roll 103</em>).</li>
-            <li>In the Teacher tab, click <strong>"▶ Start Discussion"</strong> to release the waiting room and begin the chat.</li>
-            <li>Simulate a student dominating or remaining silent to watch the <strong>AI Inclusivity Engine</strong> generate scaffolding suggestions in the Teacher approval queue!</li>
-          </ol>
-        </div>
+        <!-- Single-Line Clean Footer -->
+        <footer class="app-footer">
+          <p>© 2026 Student Sabha · Collaborative Learning &amp; Deliberative Governance</p>
+        </footer>
       </div>
     </section>
 
     <!-- ========================================== -->
-    <!-- 2. TEACHER DASHBOARD VIEW                  -->
+    <!-- 2. TEACHER DASHBOARD VIEW (PRODUCTION)     -->
     <!-- ========================================== -->
     <section id="teacherView" class="view-panel hidden">
-      <!-- Session Control Bar -->
-      <div class="session-control-bar">
-        <div class="session-status-cluster">
-          <div id="sessionStatusBadge" class="status-pill status-waiting">
-            <span class="status-dot"></span>
-            <span id="sessionStatusText">Waiting for Teacher to Start</span>
+      
+      <!-- Minimal Sticky Top Control Bar -->
+      <div class="sticky-control-bar">
+        <div class="bar-left">
+          <div class="topic-pill">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>Article IV: Language Policy</span>
           </div>
-          <div class="session-timer-box">
-            <span class="timer-label">Session Time:</span>
-            <span id="sessionTimer" class="timer-value">00:00</span>
+          <div class="live-count-pill">
+            <span class="live-dot"></span>
+            <span id="teacherConnectedCount">0 Students Connected</span>
           </div>
         </div>
-        <div class="session-actions">
-          <button id="btnStartSession" class="btn btn-success btn-lg">
-            <span>▶ Start Discussion</span>
+
+        <div class="bar-right">
+          <div class="timer-display">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span id="sessionTimer">00:00</span>
+          </div>
+
+          <!-- Primary Session Trigger Button -->
+          <button id="btnPrimarySessionAction" class="btn btn-emerald-primary btn-sm">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span id="sessionActionLabel">Start Discussion</span>
           </button>
-          <button id="btnPauseSession" class="btn btn-warning btn-md hidden">
-            <span>⏸ Pause Discussion</span>
-          </button>
-          <button id="btnResetSession" class="btn btn-outline-danger btn-sm">
-            <span>↺ Reset Session</span>
+
+          <button id="btnResetSession" class="btn btn-ghost-subtle btn-sm" title="Reset Session Data">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            <span>Reset</span>
           </button>
         </div>
       </div>
 
-      <!-- Inclusivity & Discourse Metrics Overview Cards -->
-      <div class="metrics-summary-grid">
-        <div class="metric-card">
-          <div class="metric-icon">👥</div>
-          <div class="metric-info">
-            <span class="metric-title">Active Students</span>
-            <span id="metricStudentCount" class="metric-value">0</span>
-          </div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-icon">💬</div>
-          <div class="metric-info">
-            <span class="metric-title">Total Messages</span>
-            <span id="metricMessageCount" class="metric-value">0</span>
-          </div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-icon">📝</div>
-          <div class="metric-info">
-            <span class="metric-title">Total Words</span>
-            <span id="metricWordCount" class="metric-value">0</span>
-          </div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-icon">⚖️</div>
-          <div class="metric-info">
-            <span class="metric-title">Inclusivity &amp; Equity Status</span>
-            <span id="metricBalanceRating" class="metric-value-text">Waiting for Data</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Teacher Workspace Layout -->
-      <div class="teacher-grid">
-        <!-- Left: Student Participation & Inclusivity Heatmap -->
-        <div class="teacher-column">
-          <div class="panel-box">
-            <div class="panel-header">
-              <h3>📊 Participation &amp; Inclusivity Monitor</h3>
-              <span class="panel-subtitle">Tracks student word-share, message volume, and engagement states</span>
-            </div>
-            <div id="studentParticipationList" class="student-roster-list">
-              <div class="empty-state">No students have joined yet. Waiting for students to connect...</div>
-            </div>
-          </div>
-
-          <!-- Shared Artefact Overview in Teacher Dashboard -->
-          <div class="panel-box mt-4">
-            <div class="panel-header">
-              <h3>📜 Classroom Constitution Live State</h3>
-              <span class="panel-subtitle">Live draft of Article IV &amp; amendment voting status</span>
-            </div>
-            <div class="constitution-summary-card">
-              <div class="rule-label">Current Constitutional Rule:</div>
-              <div id="teacherCurrentRule" class="rule-quote">
-                "Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."
+      <!-- Focused Two-Column Workspace (65% Left / 35% Right) -->
+      <div class="teacher-workspace-container">
+        
+        <!-- Left Column (65% width): Primary Workspace with Tabbed Switcher -->
+        <div class="workspace-main-column">
+          <div class="card-frosted workspace-card">
+            
+            <!-- Tabbed Segmented Switcher -->
+            <div class="tabs-header-bar">
+              <div class="segmented-control">
+                <button type="button" class="tab-btn active" data-tab="tabDiscussion">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                  <span>Live Deliberation Feed</span>
+                </button>
+                <button type="button" class="tab-btn" data-tab="tabConstitution">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  <span>Draft Constitution &amp; Voting</span>
+                </button>
               </div>
-              <div id="teacherProposalsContainer" class="mt-3">
-                <span class="sub-label">Active Amendment Proposals:</span>
-                <div id="teacherProposalsList" class="proposals-compact-list">
-                  <div class="empty-substate">No amendments proposed yet.</div>
+
+              <div class="tab-status-meta" id="tabStatusMeta">
+                <span class="text-subtle" id="feedMessageCountText">0 messages</span>
+              </div>
+            </div>
+
+            <!-- Tab 1: Live Deliberation Feed -->
+            <div id="tabDiscussion" class="tab-content active">
+              <div id="teacherChatFeed" class="chat-stream-box">
+                <div class="empty-state">
+                  <p>Discussion will appear here when the session begins.</p>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Center: Live Classroom Discourse Stream -->
-        <div class="teacher-column">
-          <div class="panel-box discourse-feed-panel">
-            <div class="panel-header">
-              <h3>💬 Live Class Discourse Feed</h3>
-              <span class="panel-subtitle">Real-time transactive discourse with automated epistemic tags</span>
-            </div>
-            <div id="teacherChatFeed" class="chat-stream-box">
-              <div class="empty-state">Discussion stream will appear here when students begin communicating.</div>
-            </div>
-          </div>
-        </div>
+            <!-- Tab 2: Draft Constitution & Voting -->
+            <div id="tabConstitution" class="tab-content hidden">
+              <div class="constitution-draft-viewer">
+                <div class="legal-box-header">
+                  <span class="legal-badge">Current Ratified Rule</span>
+                  <h4>Article IV: Language of Communication in School</h4>
+                </div>
+                <div id="teacherCurrentRule" class="legal-rule-quote">
+                  "Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."
+                </div>
 
-        <!-- Right: Teacher-in-the-Loop AI Feedback & Intervention Center -->
-        <div class="teacher-column">
-          <!-- Pending AI Scaffolds Queue (Teacher Approval Required) -->
-          <div class="panel-box">
-            <div class="panel-header alert-header">
-              <div class="header-title-flex">
-                <span class="badge badge-accent">Teacher-in-the-Loop</span>
-                <h3>🤖 AI Scaffolding Suggestions</h3>
+                <div class="amendments-review-block">
+                  <h5 class="section-title">Submitted Amendment Proposals</h5>
+                  <div id="teacherProposalsList" class="proposals-list">
+                    <div class="empty-state">No amendments proposed yet.</div>
+                  </div>
+                </div>
               </div>
-              <span class="panel-subtitle">Review, modify, or override AI prompts before they reach students</span>
             </div>
-            <div id="aiPromptsQueue" class="ai-queue-list">
-              <div class="empty-state">No pending AI prompts. The AI facilitator is actively monitoring discourse balance.</div>
-            </div>
-          </div>
 
-          <!-- Off-Topic & Safety Flags -->
-          <div class="panel-box mt-4">
-            <div class="panel-header warning-header">
-              <h3>⚠️ Off-Topic &amp; Drift Alerts</h3>
-              <span class="panel-subtitle">Triggered when student dialogue diverges from the Language Policy task</span>
-            </div>
-            <div id="offTopicFlagsList" class="flags-list">
-              <div class="empty-state">No off-topic drift detected. Discussion is currently aligned with task goals.</div>
-            </div>
-          </div>
-
-          <!-- Direct Teacher Message Broadcast -->
-          <div class="panel-box mt-4">
-            <div class="panel-header">
-              <h3>📢 Direct Teacher Intervention</h3>
-              <span class="panel-subtitle">Broadcast an authoritative guidance prompt directly into student chat</span>
-            </div>
-            <form id="teacherDirectMessageForm" class="direct-msg-form">
-              <textarea id="teacherDirectInput" class="form-control" rows="2" placeholder="e.g. 'Class, remember to consider how speaking home languages during lunch fosters social inclusion.'"></textarea>
-              <button type="submit" class="btn btn-teacher btn-sm mt-2">
-                <span>Broadcast to Class</span> 🚀
-              </button>
-            </form>
           </div>
         </div>
+
+        <!-- Right Column (35% width): Collapsible Teacher Control Accordions -->
+        <div class="workspace-sidebar-column">
+          <div class="accordions-stack">
+            
+            <!-- Accordion 1: Inclusivity & Participation Skew (Expanded by default) -->
+            <div class="accordion-item expanded" id="accInclusivity">
+              <button type="button" class="accordion-header" onclick="toggleAccordion('accInclusivity')">
+                <div class="accordion-title-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                  <span>Inclusivity &amp; Skew Monitor</span>
+                </div>
+                <div class="accordion-meta-wrap">
+                  <span id="metricBalancePill" class="badge-status badge-status-good">Equitable</span>
+                  <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </button>
+              <div class="accordion-body">
+                <div class="inclusivity-summary-row">
+                  <div class="stat-mini">
+                    <span class="stat-label">Total Words</span>
+                    <span id="teacherTotalWords" class="stat-num">0</span>
+                  </div>
+                  <div class="stat-mini">
+                    <span class="stat-label">Messages</span>
+                    <span id="teacherTotalMsgs" class="stat-num">0</span>
+                  </div>
+                  <div class="stat-mini">
+                    <span class="stat-label">Gini Index</span>
+                    <span id="teacherGiniSkew" class="stat-num">0.00</span>
+                  </div>
+                </div>
+
+                <div class="student-bars-container" id="studentParticipationList">
+                  <div class="empty-substate">Awaiting student participation...</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Accordion 2: AI Scaffold Queue (Collapsed by default, with pending count pill) -->
+            <div class="accordion-item" id="accAiScaffolds">
+              <button type="button" class="accordion-header" onclick="toggleAccordion('accAiScaffolds')">
+                <div class="accordion-title-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>
+                  <span>AI Scaffold Queue</span>
+                </div>
+                <div class="accordion-meta-wrap">
+                  <span id="aiQueuePill" class="badge-count">0 Pending</span>
+                  <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </button>
+              <div class="accordion-body">
+                <p class="accordion-desc">Review, edit, or override AI-generated inquiries before they reach learners.</p>
+                <div id="aiPromptsQueue" class="ai-queue-list">
+                  <div class="empty-substate">No pending scaffolds. Discussion is flowing productively.</div>
+                </div>
+                
+                <!-- Off-Topic Drift Alerts within AI queue area -->
+                <div id="offTopicSection" class="offtopic-section mt-3 hidden">
+                  <div class="offtopic-header">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span>Off-Topic Drift Detected</span>
+                  </div>
+                  <div id="offTopicFlagsList" class="flags-list"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Accordion 3: Direct Teacher Interventions (Collapsed by default) -->
+            <div class="accordion-item" id="accDirectInterventions">
+              <button type="button" class="accordion-header" onclick="toggleAccordion('accDirectInterventions')">
+                <div class="accordion-title-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  <span>Teacher Interventions</span>
+                </div>
+                <div class="accordion-meta-wrap">
+                  <span class="badge-subtle">Quick Nudge</span>
+                  <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </button>
+              <div class="accordion-body">
+                <!-- Preset Nudges -->
+                <div class="preset-nudges-group">
+                  <span class="preset-label">One-Click Guiding Nudges:</span>
+                  <div class="preset-buttons">
+                    <button type="button" class="btn-nudge" data-nudge="Class, remember to consider how speaking home languages during lunch fosters social inclusion for bilingual learners.">
+                      Dining / Mess Comfort
+                    </button>
+                    <button type="button" class="btn-nudge" data-nudge="How can we ensure that non-Telugu speakers do not feel isolated during recess activities?">
+                      Peer Non-Exclusion
+                    </button>
+                    <button type="button" class="btn-nudge" data-nudge="Let us hear from members of the group who have not shared their perspectives yet.">
+                      Invite Quieter Voices
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Custom Broadcast Form -->
+                <form id="teacherDirectMessageForm" class="direct-msg-form mt-3">
+                  <label for="teacherDirectInput" class="input-label">Custom Instructor Broadcast:</label>
+                  <textarea id="teacherDirectInput" class="form-control" rows="2" placeholder="Type a prompt or guideline to broadcast to all students..."></textarea>
+                  <button type="submit" class="btn btn-emerald-primary btn-sm mt-2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    <span>Broadcast Message</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Accordion 4: Connected Students Roster (Collapsed by default) -->
+            <div class="accordion-item" id="accRoster">
+              <button type="button" class="accordion-header" onclick="toggleAccordion('accRoster')">
+                <div class="accordion-title-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                  <span>Connected Roster</span>
+                </div>
+                <div class="accordion-meta-wrap">
+                  <span id="rosterCountPill" class="badge-count">0 Enrolled</span>
+                  <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </button>
+              <div class="accordion-body">
+                <div id="connectedStudentsList" class="roster-list">
+                  <div class="empty-substate">No students connected yet.</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -269,37 +367,38 @@
     <!-- ========================================== -->
     <section id="studentView" class="view-panel hidden">
       
-      <!-- Waiting Room Overlay (Active before Teacher clicks Start) -->
+      <!-- Waiting Room Overlay -->
       <div id="studentWaitingOverlay" class="waiting-overlay">
-        <div class="waiting-card">
-          <div class="waiting-animation">⏳</div>
-          <h2>Waiting for Teacher to Start the Session</h2>
-          <p class="waiting-subtext">Your teacher will open the discussion shortly. In the meantime, please review your task briefing below.</p>
+        <div class="waiting-card card-frosted">
+          <div class="waiting-icon-pulse">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+          <h2 class="waiting-title">Waiting for Teacher to Start the Deliberation</h2>
+          <p class="waiting-subtext">Your instructor will open the floor shortly. Please review your constitutional objective below.</p>
           
-          <div class="briefing-card">
-            <h4>📋 Task Scenario: Article IV Language Policy Deliberation</h4>
-            <div class="briefing-current-rule">
-              <strong>Current Rule 4.1:</strong> "All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."
+          <div class="briefing-box">
+            <div class="briefing-rule-preview">
+              <span class="sub-label">Current Clause 4.1 under Review:</span>
+              <p>"All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."</p>
             </div>
-            <div class="briefing-context">
-              <p><strong>Learner Context:</strong> In our school, many students speak Telugu at home and are learning English as their medium of education. During lunch, playground games, and breaks, students often feel constrained, anxious, or unable to freely express themselves when forced to speak only English.</p>
-              <p><strong>Your Mission as a Group:</strong> Deliberate whether the rule should be modified so that English is mandatory <em>only inside the classroom during lessons</em>, while allowing home languages (like Telugu) in informal spaces (playground, mess, common areas) with fairness and inclusion for all students. Work together to propose and agree upon a revised clause!</p>
+            <div class="briefing-notes">
+              <p><strong>Context &amp; Goal:</strong> Many classmates speak Telugu at home. Work together as a class to decide whether English should be limited to classroom lessons, allowing home languages in informal spaces (playground, lunch mess) with fairness and inclusion for all peers.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Student Active Collaborative Workspace (Split View) -->
+      <!-- Student Workspace Split Grid -->
       <div class="student-workspace-grid">
         
-        <!-- Left: Collaborative Chat & Epistemic Scaffolds -->
+        <!-- Left: Chat Deliberation -->
         <div class="workspace-column chat-column">
-          <div class="chat-header-bar">
+          <div class="column-header">
             <div>
-              <h3>💬 Group Deliberation Room</h3>
+              <h3 class="col-title">Class Deliberation Room</h3>
               <p class="chat-peers-status" id="studentPeersStatus">Connected Peers: Loading...</p>
             </div>
-            <span class="badge badge-success">Live Session</span>
+            <span class="status-pill-subtle">Live Session</span>
           </div>
 
           <!-- Chat Stream -->
@@ -307,9 +406,9 @@
             <!-- Messages rendered dynamically -->
           </div>
 
-          <!-- Epistemic Sentence Starters Carousel -->
+          <!-- Sentence Starters Carousel -->
           <div class="scaffold-starters-bar">
-            <span class="scaffold-label">💡 Sentence Starters:</span>
+            <span class="scaffold-label">Scaffolds:</span>
             <div class="scaffold-pills">
               <button type="button" class="scaffold-pill" data-starter="I propose that outside the classroom...">I propose that outside the classroom...</button>
               <button type="button" class="scaffold-pill" data-starter="As a Telugu speaker, I feel that...">As a Telugu speaker, I feel...</button>
@@ -319,12 +418,13 @@
             </div>
           </div>
 
-          <!-- Chat Input Box -->
+          <!-- Chat Form -->
           <form id="studentChatForm" class="student-chat-form">
             <div class="input-with-actions">
-              <textarea id="studentMessageInput" class="chat-textarea" rows="2" placeholder="Share your perspective, justify your opinion, or respond to your peers..." required></textarea>
-              <button type="submit" class="btn btn-student btn-send">
-                <span>Send</span> ✈️
+              <textarea id="studentMessageInput" class="chat-textarea" rows="2" placeholder="Articulate your argument, share your experience, or reply to a peer..." required></textarea>
+              <button type="submit" class="btn btn-indigo-primary btn-send">
+                <span>Send</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
               </button>
             </div>
             <div class="input-helper-text">
@@ -334,73 +434,70 @@
           </form>
         </div>
 
-        <!-- Right: Shared Artefact (Classroom Constitution Co-Authoring) -->
+        <!-- Right: Shared Constitution Artefact -->
         <div class="workspace-column constitution-column">
-          <div class="constitution-header-bar">
+          <div class="column-header">
             <div class="constitution-title-wrap">
-              <span class="constitution-seal">🏛️</span>
+              <div class="emblem-mini">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="22" x2="21" y2="22"></line><line x1="6" y1="18" x2="6" y2="11"></line><line x1="10" y1="18" x2="10" y2="11"></line><line x1="14" y1="18" x2="14" y2="11"></line><line x1="18" y1="18" x2="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon></svg>
+              </div>
               <div>
-                <h3>Classroom Constitution</h3>
-                <span class="constitution-subtitle">Shared Artefact · Article IV: Language Policy</span>
+                <h3 class="col-title">Classroom Constitution</h3>
+                <span class="subtext">Article IV: Language Policy</span>
               </div>
             </div>
-            <button id="btnOpenProposalModal" class="btn btn-accent btn-sm">
+            <button id="btnOpenProposalModal" class="btn btn-indigo-subtle btn-sm">
               <span>+ Propose Amendment</span>
             </button>
           </div>
 
           <div class="constitution-body">
-            <!-- Original & Current Rule Cards -->
-            <div class="constitution-article-card">
-              <div class="article-badge">Current Ratified Rule</div>
-              <div id="studentCurrentRuleDisplay" class="rule-text-block">
+            <div class="constitution-article-card card-frosted">
+              <span class="legal-badge">Current Ratified Rule</span>
+              <div id="studentCurrentRuleDisplay" class="legal-rule-quote">
                 "Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."
               </div>
-              <div class="rule-footnote">
-                Original baseline enacted at term start. Requires student group consensus to formally amend.
-              </div>
+              <p class="rule-footnote">Requires peer consensus to formally ratify an amendment.</p>
             </div>
 
-            <!-- Active Proposals Section -->
-            <div class="proposals-section">
-              <div class="section-title-bar">
-                <h4>📜 Proposed Amendments &amp; Peer Voting</h4>
-                <span class="subtext">Review peer proposals, read their rationale, and vote to reach consensus</span>
-              </div>
-
+            <!-- Proposals Section -->
+            <div class="proposals-section card-frosted">
+              <h4 class="section-title">Submitted Amendment Proposals</h4>
               <div id="studentProposalsContainer" class="proposals-list">
                 <div class="empty-state">
-                  No amendments have been proposed yet. Discuss with your peers in the chat and click <strong>"+ Propose Amendment"</strong> when ready to draft new wording!
+                  No amendments proposed yet. Deliberate with peers in the chat and click <strong>"+ Propose Amendment"</strong> to introduce new text!
                 </div>
               </div>
             </div>
           </div>
         </div>
+
       </div>
 
-      <!-- Modal: Propose Constitution Amendment -->
+      <!-- Modal: Propose Amendment -->
       <div id="proposalModal" class="modal-backdrop hidden">
-        <div class="modal-card">
+        <div class="modal-card card-frosted">
           <div class="modal-header">
-            <h3>📜 Propose Amendment to Article IV</h3>
+            <div class="modal-title-flex">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <h3>Propose Amendment to Article IV</h3>
+            </div>
             <button type="button" id="btnCloseProposalModal" class="btn-close">&times;</button>
           </div>
           <form id="proposalForm" class="modal-body">
             <div class="form-group">
               <label for="proposedClauseInput"><strong>Proposed Clause Text:</strong></label>
-              <textarea id="proposedClauseInput" class="form-control" rows="3" placeholder="e.g. 'Rule 4.1: English shall be the primary language of instruction inside the classroom. In non-classroom spaces such as the playground, dining mess, and corridors, students are permitted to speak their home languages (such as Telugu) or English, with respect and inclusion for all peers.'" required></textarea>
-              <small class="form-hint">Tip: Clearly define where English is required and where home languages are allowed.</small>
+              <textarea id="proposedClauseInput" class="form-control" rows="3" placeholder="e.g. 'Rule 4.1: English shall be mandatory during classroom lessons. In the playground, dining mess, and corridors, students are free to speak their home language (such as Telugu) or English, ensuring all peers are included respectfully.'" required></textarea>
             </div>
 
             <div class="form-group mt-3">
               <label for="proposalJustificationInput"><strong>Explanation &amp; Justification of Decision (Mandatory):</strong></label>
-              <textarea id="proposalJustificationInput" class="form-control" rows="3" placeholder="Explain WHY this amendment is fair. How does it balance English learning with students' emotional comfort and prevent peers from feeling excluded?" required></textarea>
-              <small class="form-hint">Epistemic rationale: Group members will evaluate your justification before voting.</small>
+              <textarea id="proposalJustificationInput" class="form-control" rows="3" placeholder="Explain WHY this change is fair. How does it balance English learning with student comfort and peer inclusion?" required></textarea>
             </div>
 
             <div class="modal-footer">
-              <button type="button" id="btnCancelProposal" class="btn btn-outline">Cancel</button>
-              <button type="submit" class="btn btn-accent">Submit Proposal to Group ➜</button>
+              <button type="button" id="btnCancelProposal" class="btn btn-ghost-subtle">Cancel</button>
+              <button type="submit" class="btn btn-indigo-primary">Submit Proposal for Peer Vote</button>
             </div>
           </form>
         </div>
@@ -420,4 +517,3 @@
   <script src="/js/student.js"></script>
 </body>
 </html>
-

@@ -26,7 +26,7 @@ const sessionState = {
   startTime: null,
   pauseTime: null,
   topic: {
-    title: "Drafting Classroom Constitution: Article IV - Language of Communication",
+    title: "Student Sabha: Classroom Constitution - Article IV (Language of Communication)",
     scenario: "Reviewing the rule on English-only communication. The current rule mandates English across all school premises (classroom, mess, playground, bus). Deliberate and draft an amendment to balance English learning in the classroom with linguistic freedom and emotional well-being outside the classroom for bilingual learners (e.g. Telugu speakers at home).",
     originalRule: "Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus.",
     currentRule: "Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."
@@ -455,7 +455,7 @@ io.on('connection', (socket) => {
     const proposalChatMsg = {
       id: 'sys_' + Date.now(),
       senderId: 'system',
-      senderName: 'Constitution Desk',
+      senderName: 'Student Sabha · Constitution Desk',
       senderRole: 'system',
       content: `📜 ${sender.name} proposed an amendment to Article IV!\n" ${cleanText} "\nJustification: ${cleanJustification}`,
       timestamp: Date.now(),
@@ -509,7 +509,7 @@ io.on('connection', (socket) => {
       const ratificationMsg = {
         id: 'sys_ratified_' + Date.now(),
         senderId: 'system',
-        senderName: 'Constitution Desk',
+        senderName: 'Student Sabha · Constitution Desk',
         senderRole: 'system',
         content: `🎉 CONSENSUS REACHED! Article IV has been formally amended by the class:\n"${proposal.proposedText}"`,
         timestamp: Date.now(),

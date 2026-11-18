@@ -1,5 +1,5 @@
 // ==========================================================
-// LexiCollab: Student Collaborative Workspace Controller
+// Student Sabha: Student Collaborative Workspace Controller
 // ==========================================================
 
 const studentWaitingOverlay = document.getElementById('studentWaitingOverlay');
@@ -176,7 +176,7 @@ function appendStudentChatMessage(msg) {
     badgeLabel = 'AI Facilitator';
   } else if (msg.senderRole === 'system') {
     bubbleClass = 'system-bubble';
-    badgeLabel = 'Constitution Desk';
+    badgeLabel = 'Student Sabha · Desk';
   }
 
   bubble.className = `chat-bubble ${bubbleClass}`;
@@ -186,26 +186,26 @@ function appendStudentChatMessage(msg) {
   // Epistemic Tag
   let epistemicBadge = '';
   if (msg.epistemicType === 'warrant') {
-    epistemicBadge = `<span class="epistemic-tag epistemic-warrant">💡 Explanation / Warrant</span>`;
+    epistemicBadge = `<span class="epistemic-tag epistemic-warrant">Explanation / Warrant</span>`;
   } else if (msg.epistemicType === 'proposal') {
-    epistemicBadge = `<span class="epistemic-tag epistemic-proposal">📜 Constitutional Proposal</span>`;
+    epistemicBadge = `<span class="epistemic-tag epistemic-proposal">Constitutional Proposal</span>`;
   } else if (msg.epistemicType === 'counter-claim') {
-    epistemicBadge = `<span class="epistemic-tag epistemic-counter">⚖️ Critical Point</span>`;
+    epistemicBadge = `<span class="epistemic-tag epistemic-counter">Counter-Claim</span>`;
   } else if (msg.epistemicType === 'agreement') {
-    epistemicBadge = `<span class="epistemic-tag epistemic-agreement">🤝 Agreement</span>`;
+    epistemicBadge = `<span class="epistemic-tag epistemic-agreement">Agreement</span>`;
   }
 
   // Quote / Reply Action Button for Transactivity
   let replyBtn = '';
   if (!isMe && msg.senderRole === 'student') {
-    replyBtn = `<button class="btn btn-outline btn-sm" style="padding: 0.1rem 0.4rem; font-size: 0.68rem;" onclick="quotePeerReply('${escapeHtml(msg.senderName)}')">Reply @${escapeHtml(msg.senderName)}</button>`;
+    replyBtn = `<button class="btn-ghost" style="padding: 0.1rem 0.4rem; font-size: 0.7rem;" onclick="quotePeerReply('${escapeHtml(msg.senderName)}')">Reply @${escapeHtml(msg.senderName)}</button>`;
   }
 
   bubble.innerHTML = `
     <div class="bubble-header">
       <div class="bubble-sender">
         <span>${escapeHtml(msg.senderName)}</span>
-        <span class="badge ${isMe ? 'badge-primary' : (msg.senderRole === 'teacher' ? 'badge-success' : 'badge-accent')}" style="font-size: 0.65rem;">${badgeLabel}</span>
+        <span class="text-subtle" style="font-size: 0.72rem;">· ${badgeLabel}</span>
       </div>
       <div style="display: flex; align-items: center; gap: 0.5rem;">
         ${replyBtn}

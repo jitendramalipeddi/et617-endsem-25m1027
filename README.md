@@ -1,4 +1,4 @@
-# LexiCollab: Collaborative Problem-Solving & Inclusivity Platform
+# Student Sabha: Collaborative Problem-Solving & Inclusivity Platform
 
 **Course / Project:** ET617 – Educational Technology & Learning Sciences  
 **Theoretical Focus:** Computer-Supported Collaborative Learning (CSCL), Group Learning, Shared Representations  
@@ -7,7 +7,14 @@
 
 ---
 
-## 🌟 Key Features
+## 🌟 Key Highlights & Design Updates
+
+* **Platform Name:** **Student Sabha**
+* **Aesthetic & UI/UX:** Warm, ambient, production-grade EdTech design inspired by Notion, Linear, and Stripe with an alabaster/off-white palette, diffused pastel lighting orbs, and glassmorphic cards.
+* **Progressive Disclosure Teacher Dashboard:**
+  * Minimal sticky top control bar with civic badge, student counter, timer, and primary session trigger.
+  * 65% Primary Left Column with segmented tabs: `[Live Deliberation Feed]` vs `[Draft Constitution & Voting]`.
+  * 35% Sidebar with 4 smooth, collapsible accordions (Inclusivity Monitor, AI Scaffold Queue, Direct Teacher Interventions with one-click presets, Connected Roster). Maximum 2 accordions open simultaneously to prevent scroll overflow.
 
 1. **Teacher-in-the-Loop (TITL) Dashboard**:
    * **Session Gatekeeper:** Students join a waiting room with task briefing and can only begin once the teacher clicks **"▶ Start Discussion"**.

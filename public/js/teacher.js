@@ -1,40 +1,61 @@
 // ==========================================================
-// LexiCollab: Teacher Dashboard Controller (Teacher-in-the-Loop)
+// Student Sabha: Teacher Dashboard Controller (Teacher-in-the-Loop)
+// Production UI with Progressive Disclosure & Accordions
 // ==========================================================
 
-const btnStartSession = document.getElementById('btnStartSession');
-const btnPauseSession = document.getElementById('btnPauseSession');
+const btnPrimarySessionAction = document.getElementById('btnPrimarySessionAction');
+const sessionActionLabel = document.getElementById('sessionActionLabel');
 const btnResetSession = document.getElementById('btnResetSession');
-const sessionStatusBadge = document.getElementById('sessionStatusBadge');
-const sessionStatusText = document.getElementById('sessionStatusText');
 const sessionTimer = document.getElementById('sessionTimer');
+const teacherConnectedCount = document.getElementById('teacherConnectedCount');
 
-const metricStudentCount = document.getElementById('metricStudentCount');
-const metricMessageCount = document.getElementById('metricMessageCount');
-const metricWordCount = document.getElementById('metricWordCount');
-const metricBalanceRating = document.getElementById('metricBalanceRating');
+// Tab references
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabDiscussion = document.getElementById('tabDiscussion');
+const tabConstitution = document.getElementById('tabConstitution');
+const feedMessageCountText = document.getElementById('feedMessageCountText');
 
+// Accordion references
+const metricBalancePill = document.getElementById('metricBalancePill');
+const teacherTotalWords = document.getElementById('teacherTotalWords');
+const teacherTotalMsgs = document.getElementById('teacherTotalMsgs');
+const teacherGiniSkew = document.getElementById('teacherGiniSkew');
 const studentParticipationList = document.getElementById('studentParticipationList');
-const teacherChatFeed = document.getElementById('teacherChatFeed');
+
+const aiQueuePill = document.getElementById('aiQueuePill');
 const aiPromptsQueue = document.getElementById('aiPromptsQueue');
+const offTopicSection = document.getElementById('offTopicSection');
 const offTopicFlagsList = document.getElementById('offTopicFlagsList');
+
+const rosterCountPill = document.getElementById('rosterCountPill');
+const connectedStudentsList = document.getElementById('connectedStudentsList');
+
+const teacherChatFeed = document.getElementById('teacherChatFeed');
 const teacherCurrentRule = document.getElementById('teacherCurrentRule');
 const teacherProposalsList = document.getElementById('teacherProposalsList');
+
 const teacherDirectMessageForm = document.getElementById('teacherDirectMessageForm');
 const teacherDirectInput = document.getElementById('teacherDirectInput');
 
 let teacherTimerInterval = null;
 
+// Track expanded accordions (Rule: maximum 2 expanded at once to prevent overflow)
+let openAccordions = ['accInclusivity'];
+
 function initTeacherDashboard() {
   updateTeacherSessionState(AppState.isSessionStarted);
+  setupTabs();
+  setupAccordionRules();
+  setupTeacherEventListeners();
 
-  // Render initial data if exists
   if (AppState.metrics) {
     renderTeacherMetrics(AppState.metrics);
+    renderTeacherRoster(AppState.metrics);
   }
   if (AppState.messages && AppState.messages.length > 0) {
     teacherChatFeed.innerHTML = '';
     AppState.messages.forEach(appendTeacherChatMessage);
+    updateFeedCount();
   }
   if (AppState.topic) {
     teacherCurrentRule.textContent = `"${AppState.topic.currentRule}"`;
@@ -42,25 +63,107 @@ function initTeacherDashboard() {
   if (AppState.proposals) {
     renderTeacherProposals(AppState.proposals);
   }
-
-  setupTeacherEventListeners();
 }
 
-function setupTeacherEventListeners() {
-  btnStartSession.addEventListener('click', () => {
-    socket.emit('teacher:start_session');
-  });
+// -------------------------------------------------------------
+// Tab Switching (65% Workspace Left Column)
+// -------------------------------------------------------------
+function setupTabs() {
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
 
-  btnPauseSession.addEventListener('click', () => {
-    socket.emit('teacher:pause_session');
+      const targetTab = btn.getAttribute('data-tab');
+      if (targetTab === 'tabDiscussion') {
+        tabDiscussion.classList.remove('hidden');
+        tabDiscussion.classList.add('active');
+        tabConstitution.classList.add('hidden');
+        tabConstitution.classList.remove('active');
+      } else {
+        tabConstitution.classList.remove('hidden');
+        tabConstitution.classList.add('active');
+        tabDiscussion.classList.add('hidden');
+        tabDiscussion.classList.remove('active');
+      }
+    });
+  });
+}
+
+function updateFeedCount() {
+  const count = AppState.messages.length;
+  feedMessageCountText.textContent = `${count} ${count === 1 ? 'message' : 'messages'}`;
+}
+
+// -------------------------------------------------------------
+// Accordions Controller (Max 2 Open at Any Time)
+// -------------------------------------------------------------
+function setupAccordionRules() {
+  // Ensure DOM matches openAccordions
+  const allAccordionIds = ['accInclusivity', 'accAiScaffolds', 'accDirectInterventions', 'accRoster'];
+  allAccordionIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (openAccordions.includes(id)) {
+      el.classList.add('expanded');
+    } else {
+      el.classList.remove('expanded');
+    }
+  });
+}
+
+window.toggleAccordion = function(accId) {
+  const targetEl = document.getElementById(accId);
+  if (!targetEl) return;
+
+  const isCurrentlyOpen = openAccordions.includes(accId);
+
+  if (isCurrentlyOpen) {
+    // Cannot close if it's the only one open
+    if (openAccordions.length > 1) {
+      openAccordions = openAccordions.filter(id => id !== accId);
+      targetEl.classList.remove('expanded');
+    }
+  } else {
+    // Open the new one. If already 2 open, close the oldest one.
+    if (openAccordions.length >= 2) {
+      const oldestId = openAccordions.shift();
+      const oldestEl = document.getElementById(oldestId);
+      if (oldestEl) oldestEl.classList.remove('expanded');
+    }
+    openAccordions.push(accId);
+    targetEl.classList.add('expanded');
+  }
+};
+
+// -------------------------------------------------------------
+// Session Controls & Event Listeners
+// -------------------------------------------------------------
+function setupTeacherEventListeners() {
+  btnPrimarySessionAction.addEventListener('click', () => {
+    if (!AppState.isSessionStarted) {
+      socket.emit('teacher:start_session');
+    } else {
+      socket.emit('teacher:pause_session');
+    }
   });
 
   btnResetSession.addEventListener('click', () => {
-    if (confirm('Are you sure you want to reset the session? All chat messages and amendment proposals will be cleared.')) {
+    if (confirm('Reset session? All messages, voting records, and proposals will be cleared.')) {
       socket.emit('teacher:reset_session');
     }
   });
 
+  // Preset Nudge Buttons
+  document.querySelectorAll('.btn-nudge').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.getAttribute('data-nudge');
+      teacherDirectInput.value = text;
+      teacherDirectInput.focus();
+    });
+  });
+
+  // Direct Teacher Broadcast Form
   teacherDirectMessageForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const content = teacherDirectInput.value.trim();
@@ -68,16 +171,18 @@ function setupTeacherEventListeners() {
 
     socket.emit('teacher:send_direct_message', { content });
     teacherDirectInput.value = '';
-    showToast('Teacher intervention broadcasted to student chat.', 'success');
+    showToast('Guidance broadcasted to student discussion.', 'success');
   });
 }
 
 function updateTeacherSessionState(isStarted) {
   if (isStarted) {
-    sessionStatusBadge.className = 'status-pill status-live';
-    sessionStatusText.textContent = 'Live Discussion in Progress';
-    btnStartSession.classList.add('hidden');
-    btnPauseSession.classList.remove('hidden');
+    sessionActionLabel.textContent = 'Pause Session';
+    btnPrimarySessionAction.className = 'btn btn-ghost-subtle btn-sm';
+    btnPrimarySessionAction.innerHTML = `
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+      <span>Pause Session</span>
+    `;
 
     if (!teacherTimerInterval) {
       const start = AppState.sessionStartTime || Date.now();
@@ -89,10 +194,12 @@ function updateTeacherSessionState(isStarted) {
       }, 1000);
     }
   } else {
-    sessionStatusBadge.className = 'status-pill status-waiting';
-    sessionStatusText.textContent = 'Session Paused / Waiting to Start';
-    btnStartSession.classList.remove('hidden');
-    btnPauseSession.classList.add('hidden');
+    sessionActionLabel.textContent = 'Start Discussion';
+    btnPrimarySessionAction.className = 'btn btn-emerald-primary btn-sm';
+    btnPrimarySessionAction.innerHTML = `
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+      <span>Start Discussion</span>
+    `;
 
     if (teacherTimerInterval) {
       clearInterval(teacherTimerInterval);
@@ -102,63 +209,60 @@ function updateTeacherSessionState(isStarted) {
 }
 
 // -------------------------------------------------------------
-// Inclusivity Metrics & Participation Monitor Rendering
+// Inclusivity Metrics Rendering
 // -------------------------------------------------------------
 function renderTeacherMetrics(metrics) {
   if (!metrics) return;
 
-  metricStudentCount.textContent = metrics.totalStudents;
-  metricMessageCount.textContent = metrics.totalMessages;
-  metricWordCount.textContent = metrics.totalWords;
+  teacherTotalWords.textContent = metrics.totalWords;
+  teacherTotalMsgs.textContent = metrics.totalMessages;
+  teacherGiniSkew.textContent = metrics.giniSkew.toFixed(2);
+  teacherConnectedCount.textContent = `${metrics.totalStudents} ${metrics.totalStudents === 1 ? 'Student' : 'Students'} Connected`;
 
-  // Balance status with color
-  metricBalanceRating.textContent = metrics.balanceRating;
+  // Balance status pill
   if (metrics.giniSkew > 0.5) {
-    metricBalanceRating.style.color = 'var(--danger)';
+    metricBalancePill.className = 'badge-status badge-status-danger';
+    metricBalancePill.textContent = 'Severe Skew';
   } else if (metrics.giniSkew > 0.3) {
-    metricBalanceRating.style.color = 'var(--warning)';
+    metricBalancePill.className = 'badge-status badge-status-warning';
+    metricBalancePill.textContent = 'Moderate Skew';
   } else {
-    metricBalanceRating.style.color = '#38bdf8';
+    metricBalancePill.className = 'badge-status badge-status-good';
+    metricBalancePill.textContent = 'Equitable';
   }
 
-  // Render individual student cards
-  if (metrics.students.length === 0) {
-    studentParticipationList.innerHTML = '<div class="empty-state">No students have joined yet. Waiting for students to connect...</div>';
+  // Render individual student bars
+  if (!metrics.students || metrics.students.length === 0) {
+    studentParticipationList.innerHTML = '<div class="empty-substate">Awaiting student participation...</div>';
     return;
   }
 
   let html = '';
   metrics.students.forEach(s => {
-    let statusClass = 'active';
-    let statusLabel = '🟢 Active';
-    let cardClass = 'status-active-card';
+    let borderClass = 'active-border';
+    let statusText = 'Active';
 
     if (s.status === 'silent') {
-      statusClass = 'silent';
-      statusLabel = '🔴 Silent / Inactive';
-      cardClass = 'status-silent-card';
+      borderClass = 'silent-border';
+      statusText = 'Silent';
     } else if (s.status === 'hesitant') {
-      statusClass = 'hesitant';
-      statusLabel = '🟡 Low Activity';
-      cardClass = 'status-hesitant-card';
+      borderClass = 'hesitant-border';
+      statusText = 'Low Output';
     }
 
     html += `
-      <div class="student-monitor-card ${cardClass}">
-        <div class="student-card-top">
-          <div>
-            <span class="student-card-name">${escapeHtml(s.name)}</span>
-            <span class="student-card-roll">[Roll: ${escapeHtml(s.rollNo || 'N/A')}]</span>
-          </div>
-          <span class="status-tag ${statusClass}">${statusLabel}</span>
+      <div class="student-metric-item ${borderClass}">
+        <div class="metric-item-top">
+          <span class="metric-student-name">${escapeHtml(s.name)}</span>
+          <span class="metric-student-roll">[ID: ${escapeHtml(s.rollNo || 'N/A')}] · ${statusText}</span>
         </div>
-        <div class="student-stats-row">
-          <span>Words: <strong>${s.wordCount}</strong> (${s.wordShare}%)</span>
-          <span>Messages: <strong>${s.messageCount}</strong></span>
-          <span>Idle: <strong>${s.lastActiveSecondsAgo}s ago</strong></span>
+        <div class="metric-item-stats">
+          <span>${s.wordCount} words (${s.wordShare}%)</span>
+          <span>${s.messageCount} msgs</span>
+          <span>${s.lastActiveSecondsAgo}s idle</span>
         </div>
-        <div class="progress-bar-wrap" title="Share of conversation: ${s.wordShare}%">
-          <div class="progress-bar-fill" style="width: ${Math.max(s.wordShare, 4)}%"></div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width: ${Math.max(s.wordShare, 4)}%"></div>
         </div>
       </div>
     `;
@@ -168,10 +272,42 @@ function renderTeacherMetrics(metrics) {
 }
 
 // -------------------------------------------------------------
-// Live Class Discourse Feed (Teacher View)
+// Connected Roster Rendering
+// -------------------------------------------------------------
+function renderTeacherRoster(metrics) {
+  if (!metrics || !metrics.students) return;
+
+  rosterCountPill.textContent = `${metrics.totalStudents} Enrolled`;
+
+  if (metrics.students.length === 0) {
+    connectedStudentsList.innerHTML = '<div class="empty-substate">No students connected yet.</div>';
+    return;
+  }
+
+  let html = '';
+  metrics.students.forEach(s => {
+    let dotClass = 'active';
+    if (s.status === 'silent') dotClass = 'silent';
+    if (s.status === 'hesitant') dotClass = 'hesitant';
+
+    html += `
+      <div class="roster-item">
+        <div>
+          <span class="roster-status-dot ${dotClass}"></span>
+          <strong>${escapeHtml(s.name)}</strong>
+        </div>
+        <span class="text-subtle">Roll ${escapeHtml(s.rollNo || 'N/A')}</span>
+      </div>
+    `;
+  });
+
+  connectedStudentsList.innerHTML = html;
+}
+
+// -------------------------------------------------------------
+// Live Deliberation Stream (Teacher View)
 // -------------------------------------------------------------
 function appendTeacherChatMessage(msg) {
-  // Clear empty state if present
   const empty = teacherChatFeed.querySelector('.empty-state');
   if (empty) empty.remove();
 
@@ -181,15 +317,15 @@ function appendTeacherChatMessage(msg) {
 
   if (msg.senderRole === 'teacher') {
     roleClass = 'teacher-bubble';
-    badgeLabel = 'Teacher Intervention';
+    badgeLabel = 'Instructor Intervention';
   } else if (msg.senderRole === 'ai') {
     roleClass = 'ai-bubble';
     badgeLabel = 'AI Facilitator (Approved)';
   } else if (msg.senderRole === 'system') {
     roleClass = 'system-bubble';
-    badgeLabel = 'Constitution Desk';
+    badgeLabel = 'Student Sabha · Desk';
   } else {
-    badgeLabel = `Student [Roll ${msg.senderRoll || 'N/A'}]`;
+    badgeLabel = `Student · Roll ${msg.senderRoll || 'N/A'}`;
   }
 
   if (msg.isOffTopic) {
@@ -198,35 +334,34 @@ function appendTeacherChatMessage(msg) {
 
   bubble.className = `chat-bubble ${roleClass}`;
 
-  const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   // Epistemic Tag
   let epistemicBadge = '';
   if (msg.isOffTopic) {
-    epistemicBadge = `<span class="epistemic-tag epistemic-offtopic">⚠️ Off-Topic Drift</span>`;
+    epistemicBadge = `<span class="epistemic-tag epistemic-offtopic">Off-Topic Drift</span>`;
   } else if (msg.epistemicType === 'warrant') {
-    epistemicBadge = `<span class="epistemic-tag epistemic-warrant">💡 Explanation / Warrant</span>`;
+    epistemicBadge = `<span class="epistemic-tag epistemic-warrant">Explanation / Warrant</span>`;
   } else if (msg.epistemicType === 'proposal') {
-    epistemicBadge = `<span class="epistemic-tag epistemic-proposal">📜 Constitutional Proposal</span>`;
+    epistemicBadge = `<span class="epistemic-tag epistemic-proposal">Constitutional Proposal</span>`;
   } else if (msg.epistemicType === 'counter-claim') {
-    epistemicBadge = `<span class="epistemic-tag epistemic-counter">⚖️ Counter-Claim / Disagreement</span>`;
+    epistemicBadge = `<span class="epistemic-tag epistemic-counter">Counter-Claim / Disagreement</span>`;
   } else if (msg.epistemicType === 'agreement') {
-    epistemicBadge = `<span class="epistemic-tag epistemic-agreement">🤝 Consensus Building</span>`;
+    epistemicBadge = `<span class="epistemic-tag epistemic-agreement">Consensus Building</span>`;
   } else if (msg.epistemicType === 'inquiry') {
-    epistemicBadge = `<span class="epistemic-tag epistemic-inquiry">❓ Epistemic Inquiry</span>`;
+    epistemicBadge = `<span class="epistemic-tag epistemic-inquiry">Inquiry Question</span>`;
   }
 
-  // Transactive Marker
   let transactiveTag = '';
   if (msg.transactiveTarget) {
-    transactiveTag = `<span class="badge badge-accent" style="font-size: 0.65rem;">Directs to @${escapeHtml(msg.transactiveTarget)}</span>`;
+    transactiveTag = `<span class="role-pill student" style="font-size: 0.65rem;">Directed to @${escapeHtml(msg.transactiveTarget)}</span>`;
   }
 
   bubble.innerHTML = `
     <div class="bubble-header">
       <div class="bubble-sender">
         <span>${escapeHtml(msg.senderName)}</span>
-        <span class="badge badge-primary" style="font-size: 0.65rem;">${badgeLabel}</span>
+        <span class="text-subtle" style="font-size: 0.72rem;">· ${badgeLabel}</span>
         ${transactiveTag}
       </div>
       <span class="bubble-time">${timeStr}</span>
@@ -237,45 +372,49 @@ function appendTeacherChatMessage(msg) {
 
   teacherChatFeed.appendChild(bubble);
   teacherChatFeed.scrollTop = teacherChatFeed.scrollHeight;
+  updateFeedCount();
 }
 
 // -------------------------------------------------------------
-// Teacher-in-the-Loop AI Scaffolding Suggestions Queue
+// Teacher-in-the-Loop AI Scaffold Queue Rendering
 // -------------------------------------------------------------
 function renderAIPromptsQueue(prompts) {
-  if (!prompts || prompts.length === 0) {
-    aiPromptsQueue.innerHTML = '<div class="empty-state">No pending AI prompts. The AI facilitator is actively monitoring discourse balance.</div>';
+  const pending = (prompts || []).filter(p => p.status === 'pending');
+  aiQueuePill.textContent = `${pending.length} Pending`;
+
+  if (pending.length === 0) {
+    aiPromptsQueue.innerHTML = '<div class="empty-substate">No pending scaffolds. Discussion is flowing productively.</div>';
     return;
   }
 
   let html = '';
-  prompts.forEach(p => {
-    let typeBadge = 'Inclusivity Nudge';
-    if (p.type === 'dominance_pacing') typeBadge = 'Dominance Pacing';
-    if (p.type === 'off_topic_redirect') typeBadge = 'Off-Topic Redirect';
+  pending.forEach(p => {
+    let typeName = 'Inclusivity Scaffold';
+    if (p.type === 'dominance_pacing') typeName = 'Dominance Pacing';
+    if (p.type === 'off_topic_redirect') typeName = 'Topic Redirection';
 
     html += `
       <div class="ai-card" id="aiCard_${p.id}">
-        <div class="ai-card-title">
-          <span class="ai-card-badge">🤖 Suggested: ${typeBadge}</span>
-          <span class="badge badge-accent">Awaiting Approval</span>
+        <div class="ai-card-top">
+          <span class="ai-badge">${typeName}</span>
+          <span class="badge-subtle">Review Required</span>
         </div>
-        <div class="ai-rationale">
-          <strong>Pedagogical Rationale:</strong> ${escapeHtml(p.rationale)}
+        <div class="ai-rationale-box">
+          <strong>Rationale:</strong> ${escapeHtml(p.rationale)}
         </div>
-        <div class="ai-prompt-box" id="promptText_${p.id}">
+        <div class="ai-prompt-content" id="promptText_${p.id}">
           "${escapeHtml(p.suggestedPrompt)}"
         </div>
-        <textarea class="ai-prompt-editor hidden" id="promptEditor_${p.id}" rows="3">${escapeHtml(p.suggestedPrompt)}</textarea>
-        <div class="ai-card-actions">
-          <button class="btn btn-success btn-sm" onclick="approveAIPrompt('${p.id}')">
-            ✓ Approve &amp; Send to Class
+        <textarea class="form-control hidden mt-2 mb-2" id="promptEditor_${p.id}" rows="3" style="font-size: 0.82rem;">${escapeHtml(p.suggestedPrompt)}</textarea>
+        <div class="ai-actions-row">
+          <button class="btn btn-approve" onclick="approveAIPrompt('${p.id}')">
+            Approve &amp; Send
           </button>
-          <button class="btn btn-outline btn-sm" onclick="toggleEditAIPrompt('${p.id}')" id="btnEditPrompt_${p.id}">
-            ✎ Edit
+          <button class="btn btn-edit" onclick="toggleEditAIPrompt('${p.id}')" id="btnEditPrompt_${p.id}">
+            Edit
           </button>
-          <button class="btn btn-outline-danger btn-sm" onclick="rejectAIPrompt('${p.id}')">
-            ✕ Reject
+          <button class="btn btn-reject" onclick="rejectAIPrompt('${p.id}')">
+            Dismiss
           </button>
         </div>
       </div>
@@ -292,11 +431,8 @@ window.approveAIPrompt = function(promptId) {
     editedPrompt = editor.value.trim();
   }
 
-  socket.emit('teacher:approve_ai_prompt', {
-    promptId,
-    editedPrompt
-  });
-  showToast('Approved AI prompt posted to student discussion.', 'success');
+  socket.emit('teacher:approve_ai_prompt', { promptId, editedPrompt });
+  showToast('AI prompt approved and posted to deliberation.', 'success');
 };
 
 window.toggleEditAIPrompt = function(promptId) {
@@ -307,39 +443,41 @@ window.toggleEditAIPrompt = function(promptId) {
   if (editor.classList.contains('hidden')) {
     editor.classList.remove('hidden');
     textDiv.classList.add('hidden');
-    btn.textContent = 'Hide Edit';
+    btn.textContent = 'Cancel';
     editor.focus();
   } else {
     editor.classList.add('hidden');
     textDiv.classList.remove('hidden');
-    btn.textContent = '✎ Edit';
+    btn.textContent = 'Edit';
   }
 };
 
 window.rejectAIPrompt = function(promptId) {
   socket.emit('teacher:reject_ai_prompt', { promptId });
-  showToast('AI prompt dismissed / overridden.', 'info');
+  showToast('AI scaffold dismissed.', 'info');
 };
 
 // -------------------------------------------------------------
-// Off-Topic Flags List Rendering
+// Off-Topic Flags Rendering
 // -------------------------------------------------------------
 function renderOffTopicFlags(flags) {
   if (!flags || flags.length === 0) {
-    offTopicFlagsList.innerHTML = '<div class="empty-state">No off-topic drift detected. Discussion is currently aligned with task goals.</div>';
+    offTopicSection.classList.add('hidden');
+    offTopicFlagsList.innerHTML = '';
     return;
   }
 
+  offTopicSection.classList.remove('hidden');
   let html = '';
   flags.forEach(f => {
     html += `
-      <div class="flag-item">
-        <div class="flag-header">
-          <span>⚠️ ${escapeHtml(f.studentName)} (Roll: ${escapeHtml(f.studentRoll || 'N/A')})</span>
-          <button class="btn btn-outline-danger btn-sm" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;" onclick="dismissFlag('${f.id}')">Dismiss</button>
+      <div class="flag-item" style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 0.6rem; margin-bottom: 0.5rem; font-size: 0.8rem;">
+        <div style="display: flex; justify-content: space-between; font-weight: 600; color: #dc2626; margin-bottom: 0.2rem;">
+          <span>${escapeHtml(f.studentName)} [Roll: ${escapeHtml(f.studentRoll || 'N/A')}]</span>
+          <button class="btn btn-ghost-subtle btn-sm" style="padding: 0.1rem 0.35rem; font-size: 0.68rem;" onclick="dismissFlag('${f.id}')">Dismiss</button>
         </div>
-        <div class="flag-quote">"${escapeHtml(f.messageContent)}"</div>
-        <div style="font-size: 0.72rem; color: #fca5a5;">${escapeHtml(f.reason)}</div>
+        <div style="font-style: italic; color: var(--text-secondary); margin-bottom: 0.25rem;">"${escapeHtml(f.messageContent)}"</div>
+        <div style="font-size: 0.72rem; color: #b91c1c;">${escapeHtml(f.reason)}</div>
       </div>
     `;
   });
@@ -352,11 +490,11 @@ window.dismissFlag = function(flagId) {
 };
 
 // -------------------------------------------------------------
-// Classroom Constitution State (Teacher View)
+// Constitution & Proposals (Teacher View)
 // -------------------------------------------------------------
 function renderTeacherProposals(proposals) {
   if (!proposals || proposals.length === 0) {
-    teacherProposalsList.innerHTML = '<div class="empty-substate">No amendments proposed yet.</div>';
+    teacherProposalsList.innerHTML = '<div class="empty-state">No amendments proposed yet.</div>';
     return;
   }
 
@@ -368,17 +506,17 @@ function renderTeacherProposals(proposals) {
     const isAccepted = p.status === 'accepted';
 
     html += `
-      <div class="proposal-item-card ${isAccepted ? 'proposal-accepted' : ''}" style="padding: 0.7rem; margin-bottom: 0.5rem;">
+      <div class="proposal-item-card ${isAccepted ? 'proposal-accepted' : ''}">
         <div class="proposal-item-header">
           <span class="proposal-proposer">Proposed by ${escapeHtml(p.studentName)} [Roll: ${escapeHtml(p.rollNo || 'N/A')}]</span>
-          <span class="badge ${isAccepted ? 'badge-success' : 'badge-warning'}">${isAccepted ? 'RATIFIED BY CLASS' : 'VOTING OPEN'}</span>
+          <span class="role-pill ${isAccepted ? 'teacher' : 'student'}">${isAccepted ? 'RATIFIED' : 'ACTIVE DELIBERATION'}</span>
         </div>
-        <div class="proposal-text-quote" style="font-size: 0.82rem; padding: 0.5rem;">"${escapeHtml(p.proposedText)}"</div>
-        <div class="proposal-justification-box" style="font-size: 0.76rem; padding: 0.4rem 0.6rem;">
-          <strong>Justification:</strong> ${escapeHtml(p.justification)}
+        <div class="proposal-text-quote">"${escapeHtml(p.proposedText)}"</div>
+        <div class="proposal-justification-box">
+          <strong>Decision Justification:</strong> ${escapeHtml(p.justification)}
         </div>
-        <div style="font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between;">
-          <span>Acceptances: <strong>${accepts}</strong> / ${totalVotes} votes cast</span>
+        <div style="font-size: 0.76rem; color: var(--text-secondary); display: flex; justify-content: space-between;">
+          <span>Consensus Tally: <strong>${accepts}</strong> support / ${totalVotes} votes cast</span>
           <span>Status: <strong>${p.status.toUpperCase()}</strong></span>
         </div>
       </div>
@@ -389,11 +527,14 @@ function renderTeacherProposals(proposals) {
 }
 
 // -------------------------------------------------------------
-// Socket Event Listeners for Teacher
+// Socket Listeners for Teacher
 // -------------------------------------------------------------
 socket.on('teacher:dashboard_update', (data) => {
   if (AppState.currentUser?.role !== 'teacher') return;
-  if (data.metrics) renderTeacherMetrics(data.metrics);
+  if (data.metrics) {
+    renderTeacherMetrics(data.metrics);
+    renderTeacherRoster(data.metrics);
+  }
   if (data.pendingAIPrompts) renderAIPromptsQueue(data.pendingAIPrompts);
   if (data.offTopicFlags) renderOffTopicFlags(data.offTopicFlags);
   if (data.sessionStarted !== undefined) updateTeacherSessionState(data.sessionStarted);
@@ -428,6 +569,5 @@ socket.on('constitution:ratified', ({ currentRule, proposalId }) => {
   const p = AppState.proposals.find(item => item.id === proposalId);
   if (p) p.status = 'accepted';
   renderTeacherProposals(AppState.proposals);
-  showToast('Class has reached consensus and ratified an amendment to Article IV!', 'success');
+  showToast('Consensus reached! Article IV amendment ratified by the class.', 'success');
 });
-
