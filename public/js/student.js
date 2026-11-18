@@ -177,10 +177,6 @@ function setupStudentEventListeners() {
 
   // Proposal Modal Open / Close
   btnOpenProposalModal.addEventListener('click', () => {
-    const topic = AppState.activeTopic;
-    if (!proposedClauseInput.value.trim() && topic?.suggestedAmendment) {
-      proposedClauseInput.value = topic.suggestedAmendment;
-    }
     proposalModal.classList.remove('hidden');
     proposedClauseInput.focus();
   });

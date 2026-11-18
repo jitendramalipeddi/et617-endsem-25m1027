@@ -284,6 +284,10 @@ async function runTestSuite() {
   console.log('    All Enhanced Workflows & Security Constraints Verified');
   console.log('=============================================================');
 
+  // Reset session cleanly so server leaves ZERO residual test messages or student names
+  teacher.emit('teacher:reset_session');
+  await new Promise(r => setTimeout(r, 400));
+
   teacher.disconnect();
   ravi.disconnect();
   ananya.disconnect();

@@ -642,22 +642,7 @@ io.on('connection', (socket) => {
       const cur = CURATED_TOPICS.find(t => t.id === topicId);
       if (cur) {
         chosenTopic = { ...cur };
-        if (cur.suggestedAmendment) {
-          const autoProp = {
-            id: 'prop_' + cur.id + '_' + Date.now(),
-            proposedBy: 'teacher_committee',
-            studentName: 'Classroom Constitution Committee',
-            rollNo: 'Draft',
-            proposedText: cur.suggestedAmendment,
-            justification: cur.suggestedJustification,
-            timestamp: Date.now(),
-            status: 'open',
-            votes: {}
-          };
-          sessionState.proposals = [autoProp];
-        } else {
-          sessionState.proposals = [];
-        }
+        sessionState.proposals = []; // Start fresh with no placeholder proposals; students propose their own!
       }
     }
 
