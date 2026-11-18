@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LexiCollab | CSCL Collaborative Problem-Solving & Inclusivity Platform</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Global App Header -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="brand-logo">📜</div>
+      <div>
+        <h1 class="brand-title">LexiCollab <span class="badge badge-primary">CSCL Edition</span></h1>
+        <p class="brand-subtitle">Collaborative Problem Solving &amp; Inclusivity Platform</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div id="userBadge" class="user-badge hidden">
+        <span id="userRoleIndicator" class="badge">Role</span>
+        <span id="userNameIndicator" class="user-name">User</span>
+        <button id="btnLogout" class="btn btn-sm btn-outline" title="Leave and return to login">Leave</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    
+    <!-- ========================================== -->
+    <!-- 1. LOGIN & ROLE SELECTION VIEW             -->
+    <!-- ========================================== -->
+    <section id="loginView" class="view-panel active">
+      <div class="login-wrapper">
+        <div class="login-hero">
+          <span class="badge badge-accent">Collaborative Problem-Solving Task</span>
+          <h2>Classroom Constitution: Language of Communication</h2>
+          <p class="hero-description">
+            Students are tasked with deliberating and amending <strong>Article IV (Language Policy)</strong>. 
+            The current strict rule mandates speaking <em>only English</em> across all school premises (including playground and dining mess). 
+            Learners from diverse linguistic backgrounds (e.g. Telugu speakers at home) must collaborate to amend this rule, balance English immersion with comfort and inclusion, resolve disagreements, and co-author a shared constitution.
+          </p>
+        </div>
+
+        <div class="roles-grid">
+          <!-- Teacher Card -->
+          <div class="role-card teacher-card">
+            <div class="role-card-header">
+              <div class="role-icon">👩‍🏫</div>
+              <div>
+                <h3>Teacher Portal</h3>
+                <p>Orchestrate session, monitor participation skew, approve/override AI scaffolds, and direct interventions.</p>
+              </div>
+            </div>
+            <form id="teacherLoginForm" class="role-form">
+              <div class="form-group">
+                <label for="teacherName">Teacher Name</label>
+                <input type="text" id="teacherName" class="form-control" placeholder="e.g. Ms. Rao" value="Ms. Rao" required>
+              </div>
+              <button type="submit" class="btn btn-teacher btn-block">
+                <span>Enter Teacher Dashboard</span> ➜
+              </button>
+            </form>
+          </div>
+
+          <!-- Student Card -->
+          <div class="role-card student-card">
+            <div class="role-card-header">
+              <div class="role-icon">🎓</div>
+              <div>
+                <h3>Student Portal</h3>
+                <p>Join group discussion, provide reasoned arguments, and co-author the Classroom Constitution.</p>
+              </div>
+            </div>
+            <form id="studentLoginForm" class="role-form">
+              <div class="form-group">
+                <label for="studentName">Student Name</label>
+                <input type="text" id="studentName" class="form-control" placeholder="Enter full name (e.g. Ravi, Ananya, Karthik)" required>
+              </div>
+              <div class="form-group">
+                <label for="studentRoll">Roll Number / Student ID</label>
+                <input type="text" id="studentRoll" class="form-control" placeholder="e.g. 101, 102, 103" required>
+              </div>
+              <button type="submit" class="btn btn-student btn-block">
+                <span>Join Student Discussion</span> ➜
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Multi-Device / Multi-Tab Testing Instructions -->
+        <div class="testing-guide-card">
+          <div class="testing-guide-header">
+            <span class="icon">💡</span>
+            <h4>How to Test with Multiple Students (Multi-Tab or Multiple Devices)</h4>
+          </div>
+          <p>
+            You can test this application by opening it in multiple browser tabs, windows, or devices on the same local network:
+          </p>
+          <ol class="guide-steps">
+            <li><strong>Tab 1:</strong> Log in as the <strong>Teacher</strong>. You will see the Inclusivity Dashboard and the "Start Discussion" trigger.</li>
+            <li><strong>Tabs 2, 3, 4:</strong> Log in as <strong>Students</strong> (e.g. <em>Ravi - Roll 101</em>, <em>Ananya - Roll 102</em>, <em>Karthik - Roll 103</em>).</li>
+            <li>In the Teacher tab, click <strong>"▶ Start Discussion"</strong> to release the waiting room and begin the chat.</li>
+            <li>Simulate a student dominating or remaining silent to watch the <strong>AI Inclusivity Engine</strong> generate scaffolding suggestions in the Teacher approval queue!</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 2. TEACHER DASHBOARD VIEW                  -->
+    <!-- ========================================== -->
+    <section id="teacherView" class="view-panel hidden">
+      <!-- Session Control Bar -->
+      <div class="session-control-bar">
+        <div class="session-status-cluster">
+          <div id="sessionStatusBadge" class="status-pill status-waiting">
+            <span class="status-dot"></span>
+            <span id="sessionStatusText">Waiting for Teacher to Start</span>
+          </div>
+          <div class="session-timer-box">
+            <span class="timer-label">Session Time:</span>
+            <span id="sessionTimer" class="timer-value">00:00</span>
+          </div>
+        </div>
+        <div class="session-actions">
+          <button id="btnStartSession" class="btn btn-success btn-lg">
+            <span>▶ Start Discussion</span>
+          </button>
+          <button id="btnPauseSession" class="btn btn-warning btn-md hidden">
+            <span>⏸ Pause Discussion</span>
+          </button>
+          <button id="btnResetSession" class="btn btn-outline-danger btn-sm">
+            <span>↺ Reset Session</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Inclusivity & Discourse Metrics Overview Cards -->
+      <div class="metrics-summary-grid">
+        <div class="metric-card">
+          <div class="metric-icon">👥</div>
+          <div class="metric-info">
+            <span class="metric-title">Active Students</span>
+            <span id="metricStudentCount" class="metric-value">0</span>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">💬</div>
+          <div class="metric-info">
+            <span class="metric-title">Total Messages</span>
+            <span id="metricMessageCount" class="metric-value">0</span>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">📝</div>
+          <div class="metric-info">
+            <span class="metric-title">Total Words</span>
+            <span id="metricWordCount" class="metric-value">0</span>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">⚖️</div>
+          <div class="metric-info">
+            <span class="metric-title">Inclusivity &amp; Equity Status</span>
+            <span id="metricBalanceRating" class="metric-value-text">Waiting for Data</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Teacher Workspace Layout -->
+      <div class="teacher-grid">
+        <!-- Left: Student Participation & Inclusivity Heatmap -->
+        <div class="teacher-column">
+          <div class="panel-box">
+            <div class="panel-header">
+              <h3>📊 Participation &amp; Inclusivity Monitor</h3>
+              <span class="panel-subtitle">Tracks student word-share, message volume, and engagement states</span>
+            </div>
+            <div id="studentParticipationList" class="student-roster-list">
+              <div class="empty-state">No students have joined yet. Waiting for students to connect...</div>
+            </div>
+          </div>
+
+          <!-- Shared Artefact Overview in Teacher Dashboard -->
+          <div class="panel-box mt-4">
+            <div class="panel-header">
+              <h3>📜 Classroom Constitution Live State</h3>
+              <span class="panel-subtitle">Live draft of Article IV &amp; amendment voting status</span>
+            </div>
+            <div class="constitution-summary-card">
+              <div class="rule-label">Current Constitutional Rule:</div>
+              <div id="teacherCurrentRule" class="rule-quote">
+                "Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."
+              </div>
+              <div id="teacherProposalsContainer" class="mt-3">
+                <span class="sub-label">Active Amendment Proposals:</span>
+                <div id="teacherProposalsList" class="proposals-compact-list">
+                  <div class="empty-substate">No amendments proposed yet.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: Live Classroom Discourse Stream -->
+        <div class="teacher-column">
+          <div class="panel-box discourse-feed-panel">
+            <div class="panel-header">
+              <h3>💬 Live Class Discourse Feed</h3>
+              <span class="panel-subtitle">Real-time transactive discourse with automated epistemic tags</span>
+            </div>
+            <div id="teacherChatFeed" class="chat-stream-box">
+              <div class="empty-state">Discussion stream will appear here when students begin communicating.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Teacher-in-the-Loop AI Feedback & Intervention Center -->
+        <div class="teacher-column">
+          <!-- Pending AI Scaffolds Queue (Teacher Approval Required) -->
+          <div class="panel-box">
+            <div class="panel-header alert-header">
+              <div class="header-title-flex">
+                <span class="badge badge-accent">Teacher-in-the-Loop</span>
+                <h3>🤖 AI Scaffolding Suggestions</h3>
+              </div>
+              <span class="panel-subtitle">Review, modify, or override AI prompts before they reach students</span>
+            </div>
+            <div id="aiPromptsQueue" class="ai-queue-list">
+              <div class="empty-state">No pending AI prompts. The AI facilitator is actively monitoring discourse balance.</div>
+            </div>
+          </div>
+
+          <!-- Off-Topic & Safety Flags -->
+          <div class="panel-box mt-4">
+            <div class="panel-header warning-header">
+              <h3>⚠️ Off-Topic &amp; Drift Alerts</h3>
+              <span class="panel-subtitle">Triggered when student dialogue diverges from the Language Policy task</span>
+            </div>
+            <div id="offTopicFlagsList" class="flags-list">
+              <div class="empty-state">No off-topic drift detected. Discussion is currently aligned with task goals.</div>
+            </div>
+          </div>
+
+          <!-- Direct Teacher Message Broadcast -->
+          <div class="panel-box mt-4">
+            <div class="panel-header">
+              <h3>📢 Direct Teacher Intervention</h3>
+              <span class="panel-subtitle">Broadcast an authoritative guidance prompt directly into student chat</span>
+            </div>
+            <form id="teacherDirectMessageForm" class="direct-msg-form">
+              <textarea id="teacherDirectInput" class="form-control" rows="2" placeholder="e.g. 'Class, remember to consider how speaking home languages during lunch fosters social inclusion.'"></textarea>
+              <button type="submit" class="btn btn-teacher btn-sm mt-2">
+                <span>Broadcast to Class</span> 🚀
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 3. STUDENT COLLABORATIVE WORKSPACE VIEW   -->
+    <!-- ========================================== -->
+    <section id="studentView" class="view-panel hidden">
+      
+      <!-- Waiting Room Overlay (Active before Teacher clicks Start) -->
+      <div id="studentWaitingOverlay" class="waiting-overlay">
+        <div class="waiting-card">
+          <div class="waiting-animation">⏳</div>
+          <h2>Waiting for Teacher to Start the Session</h2>
+          <p class="waiting-subtext">Your teacher will open the discussion shortly. In the meantime, please review your task briefing below.</p>
+          
+          <div class="briefing-card">
+            <h4>📋 Task Scenario: Article IV Language Policy Deliberation</h4>
+            <div class="briefing-current-rule">
+              <strong>Current Rule 4.1:</strong> "All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."
+            </div>
+            <div class="briefing-context">
+              <p><strong>Learner Context:</strong> In our school, many students speak Telugu at home and are learning English as their medium of education. During lunch, playground games, and breaks, students often feel constrained, anxious, or unable to freely express themselves when forced to speak only English.</p>
+              <p><strong>Your Mission as a Group:</strong> Deliberate whether the rule should be modified so that English is mandatory <em>only inside the classroom during lessons</em>, while allowing home languages (like Telugu) in informal spaces (playground, mess, common areas) with fairness and inclusion for all students. Work together to propose and agree upon a revised clause!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Active Collaborative Workspace (Split View) -->
+      <div class="student-workspace-grid">
+        
+        <!-- Left: Collaborative Chat & Epistemic Scaffolds -->
+        <div class="workspace-column chat-column">
+          <div class="chat-header-bar">
+            <div>
+              <h3>💬 Group Deliberation Room</h3>
+              <p class="chat-peers-status" id="studentPeersStatus">Connected Peers: Loading...</p>
+            </div>
+            <span class="badge badge-success">Live Session</span>
+          </div>
+
+          <!-- Chat Stream -->
+          <div id="studentChatStream" class="chat-stream-box student-chat-stream">
+            <!-- Messages rendered dynamically -->
+          </div>
+
+          <!-- Epistemic Sentence Starters Carousel -->
+          <div class="scaffold-starters-bar">
+            <span class="scaffold-label">💡 Sentence Starters:</span>
+            <div class="scaffold-pills">
+              <button type="button" class="scaffold-pill" data-starter="I propose that outside the classroom...">I propose that outside the classroom...</button>
+              <button type="button" class="scaffold-pill" data-starter="As a Telugu speaker, I feel that...">As a Telugu speaker, I feel...</button>
+              <button type="button" class="scaffold-pill" data-starter="To ensure non-Telugu students don't feel excluded...">To prevent exclusion of other students...</button>
+              <button type="button" class="scaffold-pill" data-starter="A potential challenge with this change could be...">A potential challenge could be...</button>
+              <button type="button" class="scaffold-pill" data-starter="I agree with this because...">I agree because...</button>
+            </div>
+          </div>
+
+          <!-- Chat Input Box -->
+          <form id="studentChatForm" class="student-chat-form">
+            <div class="input-with-actions">
+              <textarea id="studentMessageInput" class="chat-textarea" rows="2" placeholder="Share your perspective, justify your opinion, or respond to your peers..." required></textarea>
+              <button type="submit" class="btn btn-student btn-send">
+                <span>Send</span> ✈️
+              </button>
+            </div>
+            <div class="input-helper-text">
+              <span>Press Enter to send (Shift+Enter for newline)</span>
+              <span id="charCountDisplay">0 words</span>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right: Shared Artefact (Classroom Constitution Co-Authoring) -->
+        <div class="workspace-column constitution-column">
+          <div class="constitution-header-bar">
+            <div class="constitution-title-wrap">
+              <span class="constitution-seal">🏛️</span>
+              <div>
+                <h3>Classroom Constitution</h3>
+                <span class="constitution-subtitle">Shared Artefact · Article IV: Language Policy</span>
+              </div>
+            </div>
+            <button id="btnOpenProposalModal" class="btn btn-accent btn-sm">
+              <span>+ Propose Amendment</span>
+            </button>
+          </div>
+
+          <div class="constitution-body">
+            <!-- Original & Current Rule Cards -->
+            <div class="constitution-article-card">
+              <div class="article-badge">Current Ratified Rule</div>
+              <div id="studentCurrentRuleDisplay" class="rule-text-block">
+                "Rule 4.1: All students must speak exclusively in English at all times across all school premises, including classrooms, corridors, sports field, mess, and bus."
+              </div>
+              <div class="rule-footnote">
+                Original baseline enacted at term start. Requires student group consensus to formally amend.
+              </div>
+            </div>
+
+            <!-- Active Proposals Section -->
+            <div class="proposals-section">
+              <div class="section-title-bar">
+                <h4>📜 Proposed Amendments &amp; Peer Voting</h4>
+                <span class="subtext">Review peer proposals, read their rationale, and vote to reach consensus</span>
+              </div>
+
+              <div id="studentProposalsContainer" class="proposals-list">
+                <div class="empty-state">
+                  No amendments have been proposed yet. Discuss with your peers in the chat and click <strong>"+ Propose Amendment"</strong> when ready to draft new wording!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal: Propose Constitution Amendment -->
+      <div id="proposalModal" class="modal-backdrop hidden">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3>📜 Propose Amendment to Article IV</h3>
+            <button type="button" id="btnCloseProposalModal" class="btn-close">&times;</button>
+          </div>
+          <form id="proposalForm" class="modal-body">
+            <div class="form-group">
+              <label for="proposedClauseInput"><strong>Proposed Clause Text:</strong></label>
+              <textarea id="proposedClauseInput" class="form-control" rows="3" placeholder="e.g. 'Rule 4.1: English shall be the primary language of instruction inside the classroom. In non-classroom spaces such as the playground, dining mess, and corridors, students are permitted to speak their home languages (such as Telugu) or English, with respect and inclusion for all peers.'" required></textarea>
+              <small class="form-hint">Tip: Clearly define where English is required and where home languages are allowed.</small>
+            </div>
+
+            <div class="form-group mt-3">
+              <label for="proposalJustificationInput"><strong>Explanation &amp; Justification of Decision (Mandatory):</strong></label>
+              <textarea id="proposalJustificationInput" class="form-control" rows="3" placeholder="Explain WHY this amendment is fair. How does it balance English learning with students' emotional comfort and prevent peers from feeling excluded?" required></textarea>
+              <small class="form-hint">Epistemic rationale: Group members will evaluate your justification before voting.</small>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" id="btnCancelProposal" class="btn btn-outline">Cancel</button>
+              <button type="submit" class="btn btn-accent">Submit Proposal to Group ➜</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Notification Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/teacher.js"></script>
+  <script src="/js/student.js"></script>
+</body>
+</html>
