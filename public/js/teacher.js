@@ -430,3 +430,4 @@ socket.on('constitution:ratified', ({ currentRule, proposalId }) => {
   renderTeacherProposals(AppState.proposals);
   showToast('Class has reached consensus and ratified an amendment to Article IV!', 'success');
 });
+

@@ -340,3 +340,4 @@ socket.on('constitution:ratified', ({ currentRule, proposalId }) => {
 
   showToast('🎉 CONGRATULATIONS! Group consensus reached: Article IV has been officially updated!', 'success', 6000);
 });
+

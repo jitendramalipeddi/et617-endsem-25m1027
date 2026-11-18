@@ -102,3 +102,4 @@ This script connects 1 teacher and 3 student sockets, runs through discussion, o
 To deploy this project to Vercel:
 1. Since Vercel Serverless functions have ephemeral connections, real-time WebSocket state is best paired with a hosted WebSocket server (such as Railway, Render, or Heroku) or using a serverless real-time provider (like Pusher or Supabase Realtime).
 2. For standalone Node hosting (Docker, Render, Railway, Fly.io, or VPS), this repository is ready out of the box with `npm start`.
+
