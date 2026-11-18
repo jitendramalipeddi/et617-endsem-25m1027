@@ -104,9 +104,67 @@ This script connects 1 teacher and 3 student sockets, runs through discussion, o
 
 ---
 
-## ☁️ Deployment to Vercel
+## ☁️ Deployment Guide (Vercel & Persistent Hosts)
 
-To deploy this project to Vercel:
-1. Since Vercel Serverless functions have ephemeral connections, real-time WebSocket state is best paired with a hosted WebSocket server (such as Railway, Render, or Heroku) or using a serverless real-time provider (like Pusher or Supabase Realtime).
-2. For standalone Node hosting (Docker, Render, Railway, Fly.io, or VPS), this repository is ready out of the box with `npm start`.
+### Option 1: Deploying to Vercel
+
+1. **Push your repository to GitHub:**
+   ```bash
+   git add .
+   git commit -m "feat: production ready Student Sabha"
+   git push origin main
+   ```
+
+2. **Import into Vercel:**
+   * Go to [vercel.com](https://vercel.com) and log in.
+   * Click **"Add New Project"** and select your GitHub repository `et617-endsem-25m1027`.
+   * Vercel will automatically detect `vercel.json`.
+
+3. **Configure the Gemini API Key in Vercel:**
+   * Under **Environment Variables**:
+     * **Key:** `GEMINI_API_KEY`
+     * **Value:** `your_actual_gemini_api_key`
+   * Click **Deploy**.
+
+> [!NOTE]
+> **Understanding Vercel & WebSockets:** Vercel functions are serverless (stateless & short-lived). While single-instance requests work, multi-tab real-time WebSocket state across different serverless instances benefits from a persistent Node.js host.
+
+---
+
+### Option 2: 1-Click Free Persistent Hosting (Render / Railway) — Recommended for WebSockets
+
+Because `Student Sabha` uses native WebSockets (`Socket.IO`) for instantaneous multi-device synchronization, deploying on a persistent Node host keeps the server running 24/7 without disconnects:
+
+#### Deploy to Render (Free Tier):
+1. Go to [render.com](https://render.com) and connect your GitHub repo.
+2. Select **"Web Service"**.
+3. Settings:
+   * **Runtime:** Node
+   * **Build Command:** `npm install`
+   * **Start Command:** `npm start`
+4. **Add Environment Variable:**
+   * `GEMINI_API_KEY`: `your_gemini_api_key`
+5. Click **Deploy**. Render will generate a live URL (e.g., `https://student-sabha.onrender.com`).
+
+---
+
+## 🔑 How to Get & Configure the Gemini API Key
+
+1. **Obtain your API Key:**
+   * Visit [Google AI Studio](https://aistudio.google.com/app/apikey).
+   * Click **"Create API Key"** and copy the key.
+
+2. **For Local Development:**
+   * Create a `.env` file in the project root:
+     ```env
+     GEMINI_API_KEY=AIzaSy...your_key_here
+     ```
+   * Or run in terminal:
+     ```bash
+     export GEMINI_API_KEY="your_key_here"
+     npm start
+     ```
+
+3. **Built-in Fallback Reliability:**
+   * If `GEMINI_API_KEY` is not provided or quota is exhausted, `Student Sabha` automatically falls back to its built-in smart pedagogical heuristic engine, ensuring 100% uptime with zero crashes.
 

@@ -234,9 +234,52 @@ function calculateInclusivityMetrics() {
 }
 
 // -------------------------------------------------------------
+// Pluggable LLM Hook (Gemini API Integration)
+// -------------------------------------------------------------
+async function callGeminiForScaffold(activeTopic, studentName, recentMessages, triggerType) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const transcript = recentMessages.slice(-5).map(m => `${m.senderName}: "${m.content}"`).join('\n');
+    const prompt = `You are a supportive, democratic classroom AI facilitator in "Student Sabha".
+Active Deliberation Article: "${activeTopic.title}"
+Scenario: "${activeTopic.scenario}"
+Current Constitutional Rule: "${activeTopic.currentRule}"
+
+Trigger: The student "${studentName}" is ${triggerType === 'silent' ? 'currently silent or slow to speak' : 'dominating talk-time'}.
+Recent Class Messages:
+${transcript || '(Discussion beginning)'}
+
+Task: Formulate a single concise, polite, open-ended scaffold question (maximum 2 sentences) addressed to @${studentName}.
+- If silent: warmly invite their viewpoint on fairness and peer comfort regarding the active constitutional rule.
+- If dominant: praise their arguments and nudge them to invite critique or counter-arguments from their quieter peers.
+Do NOT give the answer. Output ONLY the question text.`;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 120, temperature: 0.7 }
+      })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (text) return text;
+    }
+  } catch (err) {
+    console.warn('Gemini API call failed, using built-in heuristic:', err.message);
+  }
+  return null;
+}
+
+// -------------------------------------------------------------
 // Scaffolding Generator (Strictly Scoped to Active Topic)
 // -------------------------------------------------------------
-function evaluateInclusivityAndGenerateAIPrompts() {
+async function evaluateInclusivityAndGenerateAIPrompts() {
   if (!sessionState.isStarted) return;
 
   const students = Object.values(sessionState.participants).filter(p => p.role === 'student');
@@ -253,9 +296,13 @@ function evaluateInclusivityAndGenerateAIPrompts() {
       p => p.targetStudentName === s.name && (now - p.timestamp < 60000) && p.status === 'pending'
     );
     if (!existing) {
-      let promptText = `@${s.name}, we would love to hear your perspective on ${topic.shortTitle}! What amendment to this rule would feel fairest to you and your peers?`;
-      if (topic.id === 'topic_language_policy') {
-        promptText = `@${s.name}, we would love to hear your thoughts! Do you feel speaking home languages like Telugu should be allowed during lunchtime in the mess or sports in the playground? What rule would feel fairest to you?`;
+      let promptText = await callGeminiForScaffold(topic, s.name, sessionState.messages, 'silent');
+      
+      if (!promptText) {
+        promptText = `@${s.name}, we would love to hear your perspective on ${topic.shortTitle}! What amendment to this rule would feel fairest to you and your peers?`;
+        if (topic.id === 'topic_language_policy') {
+          promptText = `@${s.name}, we would love to hear your thoughts! Do you feel speaking home languages like Telugu should be allowed during lunchtime in the mess or sports in the playground? What rule would feel fairest to you?`;
+        }
       }
 
       const promptId = 'ai_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
@@ -283,12 +330,18 @@ function evaluateInclusivityAndGenerateAIPrompts() {
         p => p.type === 'dominance_pacing' && (now - p.timestamp < 90000) && p.status === 'pending'
       );
       if (!existing) {
+        let promptText = await callGeminiForScaffold(topic, dominant.name, sessionState.messages, 'dominant');
+        
+        if (!promptText) {
+          promptText = `Great points, @${dominant.name}! To build group consensus on ${topic.shortTitle}, could you ask @${quiet.name} what potential concerns or edge cases they see with your proposal?`;
+        }
+
         const promptId = 'ai_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
         const promptObj = {
           id: promptId,
           type: 'dominance_pacing',
           targetStudentName: dominant.name,
-          suggestedPrompt: `Great points, @${dominant.name}! To build group consensus on ${topic.shortTitle}, could you ask @${quiet.name} what potential concerns or edge cases they see with your proposal?`,
+          suggestedPrompt: promptText,
           rationale: `Dominance pacing: ${dominant.name} holds ${dominant.wordShare}% of conversation. Encourages transactive inquiry.`,
           timestamp: now,
           status: 'pending'
