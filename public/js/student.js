@@ -88,6 +88,11 @@ function updateStudentSessionState(isStarted) {
       studentSessionStatusPill.textContent = 'Live Session';
       studentSessionStatusPill.className = 'status-pill-subtle';
     }
+    syncActiveTopicUI();
+    if (AppState.proposals) {
+      renderStudentProposals(AppState.proposals);
+    }
+    updateMotionNotice();
     studentMessageInput.focus();
   } else {
     // If session was active and now paused
@@ -106,6 +111,48 @@ function updateStudentSessionState(isStarted) {
     }
   }
 }
+
+function updateMotionNotice() {
+  const notice = document.getElementById('studentActiveMotionNotice');
+  const title = document.getElementById('chatMotionTitle');
+  if (!notice || !title) return;
+
+  if (AppState.activeTopic) {
+    title.textContent = `${AppState.activeTopic.shortTitle || 'Constitution'} Amendment`;
+    notice.classList.remove('hidden');
+  }
+}
+
+window.focusOnVoting = function() {
+  if (window.switchStudentMobileTab) {
+    window.switchStudentMobileTab('constitution');
+  }
+  const target = document.getElementById('studentProposalsContainer');
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    target.classList.add('highlight-glow');
+    setTimeout(() => target.classList.remove('highlight-glow'), 2000);
+  }
+};
+
+window.switchStudentMobileTab = function(tab) {
+  const chatCol = document.querySelector('.workspace-column.chat-column');
+  const constCol = document.querySelector('.workspace-column.constitution-column');
+  const btnChat = document.getElementById('tabChatBtn');
+  const btnConst = document.getElementById('tabConstBtn');
+
+  if (tab === 'chat') {
+    chatCol?.classList.add('active-tab');
+    constCol?.classList.remove('active-tab');
+    btnChat?.classList.add('active');
+    btnConst?.classList.remove('active');
+  } else {
+    constCol?.classList.add('active-tab');
+    chatCol?.classList.remove('active-tab');
+    btnConst?.classList.add('active');
+    btnChat?.classList.remove('active');
+  }
+};
 
 function updateStudentPeersStatus(metrics) {
   if (!metrics || !metrics.students) return;
@@ -327,56 +374,83 @@ function renderStudentProposals(proposals) {
   if (!proposals || proposals.length === 0) {
     studentProposalsContainer.innerHTML = `
       <div class="empty-state">
-        No amendments have been proposed yet. Discuss with your peers in the chat and click <strong>"+ Propose Amendment"</strong> when ready to draft new wording!
+        <p>No amendments currently under deliberation.</p>
+        <p class="text-subtle" style="font-size: 0.8rem; margin-top: 0.35rem;">Click <strong>"+ Propose Amendment"</strong> above to suggest a new clause to the class!</p>
       </div>
     `;
     return;
   }
+
+  // Calculate peer student count and consensus target
+  const participantsList = AppState.metrics?.participants ? Object.values(AppState.metrics.participants) : [];
+  const studentCount = participantsList.filter(p => p.role === 'student').length || 3;
+  const targetThreshold = studentCount <= 2 ? studentCount : Math.ceil(studentCount * 0.66);
 
   let html = '';
   proposals.forEach(p => {
     const isAccepted = p.status === 'accepted';
     const votes = Object.values(p.votes || {});
     const accepts = votes.filter(v => v.vote === 'accept').length;
+    const revises = votes.filter(v => v.vote === 'revise').length;
     const totalVotes = votes.length;
 
     const myVoteObj = p.votes ? p.votes[AppState.currentUser?.id] : null;
     const myVote = myVoteObj?.vote;
+    const proposerName = p.studentName || p.authorName || 'Class Deliberation Motion';
+    const rollDisplay = p.rollNo ? `Roll: ${p.rollNo}` : 'Deliberation Motion';
+    const justificationText = p.justification || p.rationale || 'Proposed for peer deliberation.';
+    const progressPct = Math.min(100, Math.round((accepts / Math.max(1, studentCount)) * 100));
 
     let voteActionHtml = '';
     if (isAccepted) {
       voteActionHtml = `
-        <div class="badge-status badge-status-good" style="font-size: 0.8rem; padding: 0.4rem 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-          🎉 Amendment Ratified into Classroom Constitution!
+        <div class="ratification-banner">
+          <div class="ratification-icon">🎉</div>
+          <div>
+            <div class="ratification-title">Consensus Supermajority Achieved!</div>
+            <div class="ratification-desc">This amendment received overwhelming student support and has been formally ratified into the Classroom Constitution!</div>
+          </div>
         </div>
       `;
     } else {
       voteActionHtml = `
-        <div class="voting-action-bar">
-          <div class="voting-buttons">
-            <button class="btn btn-sm btn-vote-accept ${myVote === 'accept' ? 'active-vote' : ''}" onclick="initiateVoteApproval('${p.id}')">
-              ${myVote === 'accept' ? '✓ You Supported' : '✓ Support Amendment'}
+        <div class="consensus-voting-panel">
+          <div class="consensus-prompt-row">
+            <span class="consensus-question">🗳️ Cast Your Consensus Vote:</span>
+            <span class="consensus-target-pill">${accepts} / ${targetThreshold} required for ratification</span>
+          </div>
+
+          <div class="consensus-action-buttons">
+            <button class="btn btn-emerald-primary btn-consensus ${myVote === 'accept' ? 'active-voted' : ''}" onclick="initiateVoteApproval('${p.id}')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>${myVote === 'accept' ? '✓ You Gave Consensus (Supported)' : 'Give Consensus (Support)'}</span>
             </button>
-            <button class="btn btn-sm btn-vote-revise ${myVote === 'revise' ? 'active-vote' : ''}" onclick="voteRevise('${p.id}')">
-              ${myVote === 'revise' ? '⚠ You Requested Revision' : '⚠ Suggest Revision'}
+            <button class="btn btn-amber-subtle btn-consensus ${myVote === 'revise' ? 'active-voted' : ''}" onclick="voteRevise('${p.id}')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>${myVote === 'revise' ? '⚠ You Requested Revision' : 'Suggest Revision'}</span>
             </button>
           </div>
-          <div class="vote-tally-pill">
-            <span>Consensus: <strong>${accepts}</strong> support / ${totalVotes} voted</span>
+
+          <div class="consensus-progress-track">
+            <div class="consensus-progress-bar" style="width: ${progressPct}%"></div>
+          </div>
+
+          <div class="consensus-meta-status">
+            <span>Status: <strong>${accepts}</strong> supported, <strong>${revises}</strong> requested revision (${totalVotes} of ${studentCount} peers voted)</span>
           </div>
         </div>
       `;
     }
 
     html += `
-      <div class="proposal-item-card ${isAccepted ? 'proposal-accepted' : ''}">
+      <div class="proposal-item-card ${isAccepted ? 'proposal-accepted' : 'proposal-active-motion'}">
         <div class="proposal-item-header">
-          <span class="proposal-proposer">Proposed by ${escapeHtml(p.studentName)} [Roll: ${escapeHtml(p.rollNo || 'N/A')}]</span>
-          <span class="role-pill ${isAccepted ? 'teacher' : 'student'}">${isAccepted ? 'RATIFIED' : 'ACTIVE DELIBERATION'}</span>
+          <span class="proposal-proposer">Proposed by <strong>${escapeHtml(proposerName)}</strong> [${escapeHtml(rollDisplay)}]</span>
+          <span class="role-pill ${isAccepted ? 'teacher' : 'student'}">${isAccepted ? '✓ RATIFIED' : '🗳️ ACTIVE MOTION'}</span>
         </div>
         <div class="proposal-text-quote">"${escapeHtml(p.proposedText)}"</div>
         <div class="proposal-justification-box">
-          <strong>Decision Justification:</strong> ${escapeHtml(p.justification)}
+          <strong>Decision Justification:</strong> ${escapeHtml(justificationText)}
         </div>
         ${voteActionHtml}
       </div>
@@ -385,6 +459,8 @@ function renderStudentProposals(proposals) {
 
   studentProposalsContainer.innerHTML = html;
 }
+
+window.renderStudentProposals = renderStudentProposals;
 
 // Caution Trigger while Approving (Step 5 in requested workflow)
 window.initiateVoteApproval = function(proposalId) {

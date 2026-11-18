@@ -429,17 +429,38 @@
         </div>
       </div>
 
+      <!-- Segmented Navigation for Narrow / Split-Screen Multi-Tab Testing -->
+      <div class="student-mobile-tabs" id="studentMobileTabs">
+        <button type="button" class="student-tab-btn active" id="tabChatBtn" onclick="switchStudentMobileTab('chat')">
+          💬 Deliberation Chat
+        </button>
+        <button type="button" class="student-tab-btn" id="tabConstBtn" onclick="switchStudentMobileTab('constitution')">
+          🗳️ Constitution &amp; Consensus Vote <span id="studentVoteActionDot" class="vote-action-dot"></span>
+        </button>
+      </div>
+
       <!-- Student Workspace Split Grid -->
       <div class="student-workspace-grid">
         
         <!-- Left: Chat Deliberation -->
-        <div class="workspace-column chat-column">
+        <div class="workspace-column chat-column active-tab">
           <div class="column-header">
             <div>
               <h3 class="col-title">Class Deliberation Room</h3>
               <p class="chat-peers-status" id="studentPeersStatus">Connected Peers: Loading...</p>
             </div>
             <span class="status-pill-subtle" id="studentSessionStatusPill">Live Session</span>
+          </div>
+
+          <!-- Sticky Motion Notice Banner in Chat -->
+          <div id="studentActiveMotionNotice" class="active-motion-notice hidden">
+            <div class="motion-notice-content">
+              <span class="motion-notice-badge">Active Motion</span>
+              <span class="motion-notice-title" id="chatMotionTitle">Language Policy Amendment</span>
+            </div>
+            <button type="button" class="btn btn-xs btn-emerald-primary" onclick="focusOnVoting()">
+              <span>🗳️ Give Consensus / Vote</span>
+            </button>
           </div>
 
           <!-- Chat Stream -->
@@ -501,9 +522,12 @@
               <p class="rule-footnote">Requires 2/3rds peer consensus to formally ratify an amendment.</p>
             </div>
 
-            <!-- Proposals Section -->
+            <!-- Proposals & Consensus Section -->
             <div class="proposals-section card-frosted">
-              <h4 class="section-title">Submitted Amendment Proposals</h4>
+              <div class="proposals-section-header">
+                <h4 class="section-title">🗳️ Deliberative Amendment &amp; Peer Consensus Voting</h4>
+                <p class="section-desc">Deliberate in chat with peers, then cast your consensus vote below. Requires 2/3rds supermajority agreement to ratify into the Classroom Constitution.</p>
+              </div>
               <div id="studentProposalsContainer" class="proposals-list">
                 <div class="empty-state">
                   No amendments proposed yet. Deliberate with peers in the chat and click <strong>"+ Propose Amendment"</strong> to introduce new text!

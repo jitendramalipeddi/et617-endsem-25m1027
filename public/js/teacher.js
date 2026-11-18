@@ -680,10 +680,14 @@ socket.on('constitution:vote_updated', ({ proposalId, votes }) => {
 
 socket.on('constitution:ratified', ({ currentRule, proposalId }) => {
   if (AppState.currentUser?.role !== 'teacher') return;
-  AppState.topic.currentRule = currentRule;
+  if (AppState.activeTopic) {
+    AppState.activeTopic.currentRule = currentRule;
+  }
   teacherCurrentRule.textContent = `"${currentRule}"`;
   const p = AppState.proposals.find(item => item.id === proposalId);
   if (p) p.status = 'accepted';
   renderTeacherProposals(AppState.proposals);
   showToast('Consensus reached! Article IV amendment ratified by the class.', 'success');
 });
+
+window.renderTeacherProposals = renderTeacherProposals;

@@ -695,7 +695,22 @@ Do NOT give the answer. Output ONLY the question text.`;
           const cur = CURATED_TOPICS.find(t => t.id === topicId);
           if (cur) {
             chosenTopic = { ...cur };
-            sessionState.proposals = []; // Start fresh with no placeholder proposals; students propose their own!
+            if (cur.suggestedAmendment) {
+              const activeMotion = {
+                id: 'prop_' + cur.id,
+                proposedBy: 'class_motion',
+                studentName: 'Amendment Motion under Review',
+                rollNo: 'Motion',
+                proposedText: cur.suggestedAmendment,
+                justification: cur.suggestedJustification,
+                timestamp: Date.now(),
+                status: 'open',
+                votes: {}
+              };
+              sessionState.proposals = [activeMotion];
+            } else {
+              sessionState.proposals = [];
+            }
           }
         }
 
@@ -731,6 +746,22 @@ Do NOT give the answer. Output ONLY the question text.`;
         // If not started with launch_topic, starts with current activeTopic
         sessionState.isStarted = true;
         sessionState.startTime = sessionState.startTime || Date.now();
+
+        if (sessionState.proposals.length === 0 && sessionState.activeTopic && sessionState.activeTopic.suggestedAmendment) {
+          const cur = sessionState.activeTopic;
+          const activeMotion = {
+            id: 'prop_' + (cur.id || Date.now()),
+            proposedBy: 'class_motion',
+            studentName: 'Classroom Committee Motion',
+            rollNo: 'Deliberation Motion',
+            proposedText: cur.suggestedAmendment,
+            justification: cur.suggestedJustification || `Primary deliberative motion for ${cur.shortTitle}. Students should discuss, refine, and cast consensus votes.`,
+            timestamp: Date.now(),
+            status: 'open',
+            votes: {}
+          };
+          sessionState.proposals = [activeMotion];
+        }
 
         const startMsg = {
           id: 'sys_start_' + Date.now(),

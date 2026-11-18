@@ -176,9 +176,15 @@ socket.on('session:started', (data) => {
 
   if (AppState.currentUser?.role === 'student') {
     updateStudentSessionState(true);
+    if (window.renderStudentProposals && AppState.proposals) {
+      window.renderStudentProposals(AppState.proposals);
+    }
     showToast(`Deliberation opened on "${data.activeTopic?.shortTitle || 'Constitution'}"!`, 'success');
   } else if (AppState.currentUser?.role === 'teacher') {
     updateTeacherSessionState(true);
+    if (window.renderTeacherProposals && AppState.proposals) {
+      window.renderTeacherProposals(AppState.proposals);
+    }
   }
 });
 
