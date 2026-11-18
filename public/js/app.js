@@ -3,6 +3,7 @@
 // ==========================================================
 
 const socket = io();
+window.socket = socket;
 
 // Global App State
 const AppState = {
@@ -17,6 +18,7 @@ const AppState = {
   sessionTimerInterval: null,
   sessionStartTime: null
 };
+window.AppState = AppState;
 
 // DOM References
 const views = {
@@ -52,6 +54,7 @@ function showToast(message, type = 'info', duration = 3500) {
     setTimeout(() => toast.remove(), 200);
   }, duration);
 }
+window.showToast = showToast;
 
 function escapeHtml(str) {
   if (!str) return '';
@@ -62,6 +65,7 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+window.escapeHtml = escapeHtml;
 
 // -------------------------------------------------------------
 // Navigation & View Routing
@@ -86,6 +90,7 @@ function switchView(viewName) {
     userBadge.classList.add('hidden');
   }
 }
+window.switchView = switchView;
 
 // -------------------------------------------------------------
 // Login Form Handlers
@@ -99,8 +104,6 @@ document.getElementById('teacherLoginForm').addEventListener('submit', (e) => {
     role: 'teacher',
     name: name,
     rollNo: ''
-  });
-});
   });
 });
 
